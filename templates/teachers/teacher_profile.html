@@ -1,0 +1,110 @@
+{% extends "Home/base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+<div class="content container-fluid">
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">My Profile</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Profile</li>
+            </ul>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'edit_teacher' pk=user.pk %}" class="btn btn-primary">
+                <i class="fas fa-pen"></i> Edit Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img src="{{ user.get_profile_picture_url }}" 
+                     alt="{{ user.get_full_name }}"
+                     class="rounded-circle mb-3"
+                     width="150"
+                     height="150"
+                     onerror="this.onerror=null;this.src='{% static 'img/profiles/avatar-02.jpg' %}'">
+                
+                <h3>{{ user.get_full_name }}</h3>
+                <p class="text-muted">{{ user.email }}</p>
+                
+                {% if teacher and teacher.phone %}
+                <p class="text-muted">
+                    <i class="fas fa-phone me-2"></i> {{ teacher.phone }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Personal Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>First Name:</strong> {{ user.first_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                    </div>
+                </div>
+                
+                {% if teacher %}
+                <hr>
+                <h5 class="card-title">Teacher Information</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Teacher ID:</strong> {{ teacher.teacher_id }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Department:</strong> {{ teacher.department }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Qualification:</strong> {{ teacher.qualification }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Joining Date:</strong> {{ teacher.joining_date }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Subjects:</strong> 
+                            {% for subject in teacher.subjects.all %}
+                                {{ subject.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Classes Assigned:</strong> 
+                            {% for class in teacher.classes.all %}
+                                {{ class.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}

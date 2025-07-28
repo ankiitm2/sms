@@ -1,0 +1,94 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Timetable Calendar</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Calendar View</li>
+                    </ul>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'time_table' %}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> List View
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered timetable-calendar">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        {% for day in days %}
+                                        <th>{{ day }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for time_slot in time_slots %}
+                                    <tr>
+                                        <td>{{ time_slot }}</td>
+                                        {% for day in days %}
+                                            <td>
+                                                {% for entry in entries %}
+                                                    {% if entry.day == day and entry.start_time|stringformat:"H:i" == time_slot %}
+                                                        {{ entry.subject }}<br>
+                                                        {{ entry.teacher.get_full_name }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timetable-calendar {
+    table-layout: fixed;
+}
+.timetable-calendar th {
+    width: 12%;
+    text-align: center;
+}
+.timetable-calendar td {
+    height: 60px;
+    vertical-align: top;
+    position: relative;
+    padding: 2px;
+}
+.timetable-entry {
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    margin: 2px;
+    position: absolute;
+    width: calc(100% - 4px);
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.timetable-actions {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+}
+</style>
+{% endblock %}

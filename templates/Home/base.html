@@ -1,0 +1,400 @@
+{% load static user_tags %}
+{% with current_path=request.path current_url_name=request.resolver_match.url_name %}
+<!DOCTYPE html>
+<html lang="en">
+   
+   <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+      <title>Preskool - Dashboard</title>
+      <link rel="shortcut icon" href="{% static 'img/favicon.png' %}">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,500;0,600;0,700;1,400&amp;display=swap">
+      <link rel="stylesheet" href="{% static 'plugins/bootstrap/css/bootstrap.min.css' %}">
+      <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}">
+      <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+   </head>
+   <body>
+      <div class="main-wrapper">
+         <div class="header">
+            <div class="header-left">
+             <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="logo">
+               <img src="{% static 'img/logo.png' %}" alt="Logo">
+               </a>
+               <a href="{% static 'img/index.html' %}" class="logo logo-small">
+               <img src="{% static 'img/logo-small.png' %}" alt="Logo" width="30" height="30">
+               </a>
+            </div>
+            <a href="javascript:void(0);" id="toggle_btn">
+            <i class="fas fa-align-left"></i>
+            </a>
+            <div class="top-nav-search">
+               <form>
+                  <input type="text" class="form-control" placeholder="Search here">
+                  <button class="btn" type="submit"><i class="fas fa-search"></i></button>
+               </form>
+            </div>
+            <a class="mobile_btn" id="mobile_btn">
+            <i class="fas fa-bars"></i>
+            </a>
+            <ul class="nav user-menu">
+               <li class="nav-item dropdown noti-dropdown">
+               <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                  <i class="far fa-bell"></i> 
+                  {% if unread_notification_count > 0 %}
+                  <span class="badge badge-pill badge-danger">{{ unread_notification_count }}</span>
+                  {% endif %}
+               </a>
+                
+            <div class="dropdown-menu notifications">
+               <div class="topnav-dropdown-header">
+                  <span class="notification-title">Notifications</span>
+                  <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
+               </div>
+               <div class="noti-content">
+                  <ul class="notification-list">
+            {% for notification in unread_notification %}
+            <li class="notification-message {% if forloop.first %}new-notification{% endif %}">
+                <a href="#">
+                    <div class="media">
+                        <span class="avatar avatar-sm">
+                          <img class="avatar-img rounded-circle" alt="User Image" 
+                           src="{{ notification.user|user_avatar:'small' }}">
+                        </span>
+                        <div class="media-body">
+                            <p class="noti-details">
+                                <span class="noti-title">{{ notification.message }}</span>
+                            </p>
+                            <p class="noti-time">
+                                <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                                {% if forloop.first %}<span class="badge badge-primary ml-2">New</span>{% endif %}
+                            </p>
+                        </div>
+                        </div>
+                     </a>
+                  </li>
+                  {% empty %}
+                  <li class="notification-message">
+                     <div class="media">
+                        <div class="media-body w-full text-center py-4">
+                              <p class="noti-details">No new notifications</p>
+                        </div>
+                     </div>
+                        </li>
+                        {% endfor %}
+                  </ul>
+               </div>
+               <div class="topnav-dropdown-footer">
+                  <a href="#">View all Notifications</a>
+               </div>
+            </div>
+               </li>
+               <li class="nav-item dropdown has-arrow">
+                  <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                  <span class="user-img">
+                    <img class="rounded-circle" src="{{ user|user_avatar }}" width="31" height="31" alt="{{ user.username }}">
+                  </span>
+                  </a>
+                  <div class="dropdown-menu">
+                        <div class="user-header">
+                          <div class="avatar avatar-sm">
+                           <img src="{{ user|user_avatar }}" alt="User Image" class="avatar-img rounded-circle">
+                        </div>
+                        <div class="user-text">
+                           <h6>{{user.username}}</h6>
+                            <p class="text-muted mb-0">
+                    {% if user.is_admin %}Administrator
+                    {% elif user.is_teacher %}Teacher
+                    {% elif user.is_student %}Student
+                    {% endif %}
+                        </p>
+                        </div>
+                     </div>
+                     <a class="dropdown-item" href="
+                        {% if user.is_student %}{% url 'student_profile' %}
+                        {% elif user.is_teacher %}{% url 'teacher_profile' %}
+                        {% else %}#{% endif %}">
+                        My Profile
+                     </a>
+                     <a class="dropdown-item" href="inbox.html">Inbox</a>
+                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                  </div>
+               </li>
+            </ul>
+         </div>
+         <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll">
+               <div id="sidebar-menu" class="sidebar-menu">
+                  <ul>
+                     <li class="menu-title">
+                        <span>Main Menu</span>
+                     </li>
+                     {% if user.is_student %}
+                     <li class="{% if current_url_name == 'student_dashboard' or current_url_name == 'dashboard' %}active{% endif %}">
+                        <a href="{% url 'student_dashboard' %}"><i class="fas fa-user-graduate"></i> <span> Dashboard</span></a>
+                     </li>
+                     <li class="{% if current_url_name == 'student_list' %}active{% endif %}">
+                        <a href="{% url 'student_list' %}"><i class="fas fa-users"></i> <span>Classmates</span></a>
+                     </li>
+                     <li class="{% if 'timetable' in current_path %}active{% endif %}">
+                        <a href="{% url 'timetable' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
+                     </li>
+                     <li class="{% if 'exam' in current_path %}active{% endif %}">
+                        <a href="exam.html"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
+                     </li>
+                     {% elif user.is_teacher %}
+                     <!-- Teacher specific menu items -->
+                     {% elif user.is_admin %}
+                     <!-- Admin specific menu items -->
+                     {% endif %}
+                     
+                     <!-- Common items for all roles -->
+                     <!-- <li class="{% if 'student_profile' in current_path %}active{% endif %}">
+                        <a href="{% url 'student_profile' %}"><i class="fas fa-user"></i> <span>My Profile</span></a>
+                     </li> -->
+                     <li class="submenu {% if 'student_list' in current_url_name or 'add_student' in current_url_name or 'edit_student' in current_url_name or 'view_student' in current_url_name %}active{% endif %}">
+                           <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
+                           <ul>
+                              <li class="{% if current_url_name == 'student_list' %}active{% endif %}"><a href="{% url 'student_list' %}">Student List</a></li>
+                              <li class="{% if current_url_name == 'add_student' %}active{% endif %}"><a href="{% url 'add_student' %}">Student Add</a></li>
+                           </ul>
+                     </li>
+                     {% if user.is_student %}
+                     <li class="nav-item {% if 'student_teachers' in current_url_name %}active{% endif %}">
+                        <a href="{% url 'student_teachers' %}" class="nav-link">
+                           <i class="fas fa-chalkboard-teacher"></i> <span>My Teachers</span>
+                        </a>
+                     </li>
+                     {% elif user.is_teacher %}
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Teachers</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="{% url 'teacher_list' %}">Teacher List</a></li>
+                           {% if user.is_admin %}
+                           <li><a href="{% url 'add_teacher' %}">Teacher Add</a></li>
+                           {% endif %}
+                        </ul>
+                     </li>
+                     {% endif %}
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-building"></i> <span> Departments</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="departments.html">Department List</a></li>
+                           <li><a href="add-department.html">Department Add</a></li>
+                           <li><a href="edit-department.html">Department Edit</a></li>
+                        </ul>
+                     </li>
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="subjects.html">Subject List</a></li>
+                           <li><a href="add-subject.html">Subject Add</a></li>
+                           <li><a href="edit-subject.html">Subject Edit</a></li>
+                        </ul>
+                     </li>
+                     <li class="menu-title">
+                        <span>Management</span>
+                     </li>
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-file-invoice-dollar"></i> <span> Accounts</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="fees-collections.html">Fees Collection</a></li>
+                           <li><a href="expenses.html">Expenses</a></li>
+                           <li><a href="salary.html">Salary</a></li>
+                           <li><a href="add-fees-collection.html">Add Fees</a></li>
+                           <li><a href="add-expenses.html">Add Expenses</a></li>
+                           <li><a href="add-salary.html">Add Salary</a></li>
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="holiday.html"><i class="fas fa-holly-berry"></i> <span>Holiday</span></a>
+                     </li>
+                     <li>
+                        <a href="fees.html"><i class="fas fa-comment-dollar"></i> <span>Fees</span></a>
+                     </li>
+                     <li>
+                        <a href="exam.html"><i class="fas fa-clipboard-list"></i> <span>Exam list</span></a>
+                     </li>
+                     <li>
+                        <a href="event.html"><i class="fas fa-calendar-day"></i> <span>Events</span></a>
+                     </li>
+                     <li>
+                       <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
+                     </li>
+                     <li>
+                        <a href="library.html"><i class="fas fa-book"></i> <span>Library</span></a>
+                     </li>
+                     <li class="menu-title">
+                        <span>Pages</span>
+                     </li>
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-shield-alt"></i> <span> Authentication </span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="{% url 'login' %}">Login</a></li>
+                           <li><a href="{% url 'signup' %}">Register</a></li>
+                           <li><a href="{% url 'forgot-password' %}">Forgot Password</a></li>
+                           <li><a href="error-404.html">Error Page</a></li>
+                        </ul>
+                     </li>
+                     <li>
+                        <a href="blank-page.html"><i class="fas fa-file"></i> <span>Blank Page</span></a>
+                     </li>
+                     <li class="menu-title">
+                        <span>Others</span>
+                     </li>
+                     <li>
+                        <a href="sports.html"><i class="fas fa-baseball-ball"></i> <span>Sports</span></a>
+                     </li>
+                     <li>
+                        <a href="hostel.html"><i class="fas fa-hotel"></i> <span>Hostel</span></a>
+                     </li>
+                     <li>
+                        <a href="transport.html"><i class="fas fa-bus"></i> <span>Transport</span></a>
+                     </li>
+                     <li class="menu-title">
+                        <span>UI Interface</span>
+                     </li>
+                     <li>
+                        <a href="components.html"><i class="fas fa-vector-square"></i> <span>Components</span></a>
+                     </li>
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-columns"></i> <span> Forms </span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="form-basic-inputs.html">Basic Inputs </a></li>
+                           <li><a href="form-input-groups.html">Input Groups </a></li>
+                           <li><a href="form-horizontal.html">Horizontal Form </a></li>
+                           <li><a href="form-vertical.html"> Vertical Form </a></li>
+                           <li><a href="form-mask.html"> Form Mask </a></li>
+                           <li><a href="form-validation.html"> Form Validation </a></li>
+                        </ul>
+                     </li>
+                     <li class="submenu">
+                        <a href="#"><i class="fas fa-table"></i> <span> Tables </span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li><a href="tables-basic.html">Basic Tables </a></li>
+                           <li><a href="data-tables.html">Data Table </a></li>
+                        </ul>
+                     </li>
+                     <li class="submenu">
+                        <a href="javascript:void(0);"><i class="fas fa-code"></i> <span>Multi Level</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li class="submenu">
+                              <a href="javascript:void(0);"> <span>Level 1</span> <span class="menu-arrow"></span></a>
+                              <ul>
+                                 <li><a href="javascript:void(0);"><span>Level 2</span></a></li>
+                                 <li class="submenu">
+                                    <a href="javascript:void(0);"> <span> Level 2</span> <span class="menu-arrow"></span></a>
+                                    <ul>
+                                       <li><a href="javascript:void(0);">Level 3</a></li>
+                                       <li><a href="javascript:void(0);">Level 3</a></li>
+                                    </ul>
+                                 </li>
+                                 <li><a href="javascript:void(0);"> <span>Level 2</span></a></li>
+                              </ul>
+                           </li>
+                           <li>
+                              <a href="javascript:void(0);"> <span>Level 1</span></a>
+                           </li>
+                        </ul>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+
+
+         {% block body %}
+            
+         {% endblock %}
+
+      </div>
+
+ 
+      <!-- <script src="{% static '../../../../static/js/jquery-ui.min.js' %}"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"></script>
+      <script src="{% static '../../../../static/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+      -->
+      <script src="{% static '/js/jquery-3.6.0.min.js' %}"></script>
+      <script src="{% static '/js/popper.min.js' %}"></script>
+      <script src="{%static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+      <script src="{%static 'plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+      <script src="{%static 'plugins/apexchart/apexcharts.min.js' %}"></script>
+      <script src="{%static 'plugins/apexchart/chart-data.js' %}"></script>
+      <script src="{%static 'js/script.js' %}"></script>
+    
+      <script type="text/javascript">
+
+const activeSubmenus = document.querySelectorAll('.submenu.active');
+    activeSubmenus.forEach(submenu => {
+        const ul = submenu.querySelector('ul');
+        if (ul) {
+            ul.style.display = 'block';
+        }
+    });
+    
+    document.querySelectorAll('.submenu > a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.parentElement.classList.contains('submenu')) {
+                e.preventDefault();
+                const ul = this.nextElementSibling;
+                if (ul.style.display === 'block') {
+                    ul.style.display = 'none';
+                    this.parentElement.classList.remove('active');
+                } else {
+                    ul.style.display = 'block';
+                    this.parentElement.classList.add('active');
+                }
+            }
+        });
+    });
+
+          document.addEventListener('DOMContentLoaded', function() {
+    // Clear all notifications
+    const clearAllBtn = document.querySelector('.clear-noti');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            fetch('/notification/clear-all/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.querySelector('.notification-list').innerHTML = 
+                        '<li class="notification-message"><div class="media"><div class="media-body w-full text-center py-4"><p class="noti-details">No new notifications</p></div></div></li>';
+                    
+                    // Update badge count
+                    const badge = document.querySelector('.noti-dropdown .badge');
+                    if (badge) {
+                        badge.textContent = data.count;
+                        if (data.count == 0) {
+                            badge.remove();
+                        }
+                    }
+                }
+            });
+        });
+    }
+});
+         document.addEventListener('DOMContentLoaded', function() {
+            // Set up error handlers for all avatar images
+            document.querySelectorAll('.avatar-img, .user-img img').forEach(img => {
+               img.onerror = function() {
+                     // Determine which default avatar to use based on class
+                     const defaultImg = this.classList.contains('avatar-img') ? 
+                        '{% static "img/profiles/avatar-02.jpg" %}' : 
+                        '{% static "img/profiles/avatar-01.jpg" %}';
+                     this.src = defaultImg;
+               };
+            });
+         });
+      </script>
+     
+  </body>
+  </html>
+  {% endwith %}

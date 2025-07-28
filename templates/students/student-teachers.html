@@ -1,0 +1,127 @@
+{% extends "Home/base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+<div class="content container-fluid">
+<div class="page-header">
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title">My Teachers</h3>
+            <ul class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Student</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for relationship in teachers %}
+    <div class="col-xl-4 col-sm-6 col-12">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0 mr-2">
+                        <img src="{{ relationship.teacher.get_profile_picture_url }}" 
+                            alt="{{ relationship.teacher.get_full_name }}"
+                            class="rounded-circle"
+                            width="40"
+                            height="40"
+                            onerror='this.onerror=null;this.src="{% static "img/user.jpg" %}"'>
+
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mb-1">{{ relationship.teacher.get_full_name }}</h5>
+                        <p class="mb-1 text-muted">
+                            <i class="fas fa-book mr-1"></i>{{ relationship.subject }}
+                        </p>
+                        <p class="mb-1 text-muted">
+                            <i class="fas fa-envelope mr-1"></i>{{ relationship.teacher.email }}
+                        </p>
+                        {% if relationship.teacher.mobile_number %}
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-phone mr-1"></i>{{ relationship.teacher.mobile_number }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 mr-2">
+                    <i class="fas fa-info-circle fa-2x"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h5 class="alert-heading">No Teachers Assigned</h5>
+                    <p>You don't have any teachers assigned yet. Please check back later or contact administration.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if teachers %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">All My Teachers</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Name</th>
+                                <th>Subject</th>
+                                <th>Email</th>
+                                <th>Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for relationship in teachers %}
+                            <tr>
+                                <td>
+                                    <img src="{{ relationship.teacher.get_profile_picture_url }}" 
+                                         alt="{{ relationship.teacher.get_full_name }}"
+                                         class="rounded-circle"
+                                         width="40"
+                                         height="40"
+                                         onerror="this.src='{% static 'img/user.jpg' %}">
+                                </td>
+                                <td>{{ relationship.teacher.get_full_name }}</td>
+                                <td>{{ relationship.subject }}</td>
+                                <td>
+                                    <a href="mailto:{{ relationship.teacher.email }}">
+                                        {{ relationship.teacher.email }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if relationship.teacher.mobile_number %}
+                                    <a href="tel:{{ relationship.teacher.mobile_number }}">
+                                        {{ relationship.teacher.mobile_number }}
+                                    </a>
+                                    {% else %}
+                                    N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}

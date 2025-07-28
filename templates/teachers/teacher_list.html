@@ -1,0 +1,83 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Teachers List</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Teachers</li>
+                    </ul>
+                </div>
+                {% if user.is_admin %}
+                <div class="col-auto text-right float-right ml-auto">
+                    <a href="{% url 'add_teacher' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Teacher
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card card-table">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Join Date</th>
+                                        {% if user.is_admin %}
+                                        <th class="text-right">Action</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for teacher in teachers %}
+                                    <tr>
+                                        <td>
+                                            <div class="avatar avatar-sm">
+                                                {% with default_avatar='img/profiles/avatar-02.jpg' %}
+                                                <img class="avatar-img rounded-circle" 
+                                                     src="{{ teacher.get_profile_picture }}"
+                                                     alt="User Image"
+                                                     onerror="this.onerror=null;this.src='{% static default_avatar %}'">
+                                                {% endwith %}
+                                            </div>
+                                        </td>
+                                        <td>{{ teacher.get_full_name }}</td>
+                                        <td>{{ teacher.email }}</td>
+                                        <td>{{ teacher.date_joined|date:"d M Y" }}</td>
+                                        {% if user.is_admin %}
+                                        <td class="text-right">
+                                            <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-sm bg-success-light">
+                                                <i class="fas fa-pen"></i> Edit
+                                            </a>
+                                        </td>
+                                        {% endif %}
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="{% if user.is_admin %}5{% else %}4{% endif %}" class="text-center">
+                                            No teachers found
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
