@@ -1,0 +1,226 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+<div class="content container-fluid">
+
+<div class="page-header">
+<div class="row">
+<div class="col-sm-12">
+<h3 class="page-title">Welcome {{ user.get_full_name }}!</h3>
+<ul class="breadcrumb">
+<li class="breadcrumb-item"><a href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+<li class="breadcrumb-item active">Teacher Dashboard</li>
+</ul>
+</div>
+</div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row">
+<div class="col-xl-3 col-sm-6 col-12 d-flex">
+<div class="card bg-one w-100">
+<div class="card-body">
+<div class="db-widgets d-flex justify-content-between align-items-center">
+<div class="db-icon">
+<i class="fas fa-chalkboard-teacher"></i>
+</div>
+<div class="db-info">
+<h3>{{ classes_teaching }}</h3>
+<h6>Classes Teaching</h6>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-xl-3 col-sm-6 col-12 d-flex">
+<div class="card bg-two w-100">
+<div class="card-body">
+<div class="db-widgets d-flex justify-content-between align-items-center">
+<div class="db-icon">
+<i class="fas fa-users"></i>
+</div>
+<div class="db-info">
+<h3>{{ students_taught }}</h3>
+<h6>Students Taught</h6>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-xl-3 col-sm-6 col-12 d-flex">
+<div class="card bg-three w-100">
+<div class="card-body">
+                        <div class="db-widgets d-flex justify-content-between align-items-center">
+                            <span class="db-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </span>
+                            <div class="db-info">
+                                <h3>{{ tests_to_grade|length }}</h3>
+                                <h6>Tests to Grade</h6>
+                            </div>
+                        </div>
+                        
+                    </div>
+</div>
+</div>
+<div class="col-xl-3 col-sm-6 col-12 d-flex">
+<div class="card bg-four w-100">
+<!-- <div class="card-body">
+<div class="db-widgets d-flex justify-content-between align-items-center">
+<div class="db-icon">
+<i class="fas fa-calendar-alt"></i>
+</div>
+<div class="db-info">
+<h3>{{ upcoming_classes }}</h3>
+<h6>Upcoming Classes</h6>
+</div>
+</div>
+</div> -->
+<div class="card-body">
+                        {% if upcoming_classes %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Day</th>
+                                        <th>Time</th>
+                                        <th>Subject</th>
+                                        <th>Class</th>
+                                        <th>Section</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for class in upcoming_classes %}
+                                    <tr>
+                                        <td>{{ class.day }}</td>
+                                        <td>{{ class.start_time|time:"H:i" }} - {{ class.end_time|time:"H:i" }}</td>
+                                        <td>{{ class.subject }}</td>
+                                        <td>{{ class.student_class }}</td>
+                                        <td>{{ class.section }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p>No upcoming classes scheduled.</p>
+                        {% endif %}
+                    </div>
+</div>
+</div>
+</div>
+
+<!-- Today's Schedule Section -->
+<div class="row">
+<div class="col-12 col-lg-12 col-xl-8">
+<div class="card flex-fill">
+<div class="card-header">
+<div class="row align-items-center">
+<div class="col-6">
+<h5 class="card-title">Today's Schedule</h5>
+</div>
+<div class="col-6">
+<span class="float-right view-link"><a href="{% url 'teacher_schedule' %}">View Full Schedule</a></span>
+</div>
+</div>
+</div>
+<div class="card-body">
+<div class="table-responsive">
+<table class="table table-hover table-center mb-0">
+<thead>
+<tr>
+<th>Time</th>
+<th>Class</th>
+<th>Section</th>
+<th>Room</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<!-- Sample data - replace with actual schedule items -->
+<tr>
+<td>9:00 AM - 10:00 AM</td>
+<td>Mathematics</td>
+<td>Section A</td>
+<td>Room 101</td>
+<td><a href="#" class="btn btn-sm btn-info">Start Class</a></td>
+</tr>
+<tr>
+<td>11:00 AM - 12:00 PM</td>
+<td>Science</td>
+<td>Section B</td>
+<td>Room 205</td>
+<td><a href="#" class="btn btn-sm btn-info">Prepare</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="col-12 col-lg-12 col-xl-4 d-flex">
+<div class="card flex-fill">
+<div class="card-header">
+<h5 class="card-title">Quick Actions</h5>
+</div>
+<div class="card-body">
+<div class="teaching-card">
+<ul class="activity-feed">
+<li class="feed-item">
+<a href="{% url 'create_assignment' %}" class="feed-text1">
+<i class="fas fa-plus-circle text-primary mr-2"></i> Create New Assignment
+</a>
+</li>
+<li class="feed-item">
+<a href="{% url 'grade_submissions' %}" class="feed-text1">
+<i class="fas fa-check-circle text-success mr-2"></i> Grade Submissions
+</a>
+</li>
+<li class="feed-item">
+<a href="{% url 'attendance' %}" class="feed-text1">
+<i class="fas fa-clipboard-list text-info mr-2"></i> Take Attendance
+</a>
+</li>
+<li class="feed-item">
+<a href="{% url 'teacher_profile' %}" class="feed-text1">
+<i class="fas fa-user-edit text-warning mr-2"></i> Update Profile
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Recent Announcements -->
+<div class="row">
+<div class="col-md-12">
+<div class="card">
+<div class="card-header">
+<h5 class="card-title">Recent Announcements</h5>
+</div>
+<div class="card-body">
+<div class="activity-feed">
+<div class="feed-item">
+<div class="feed-date">Today</div>
+<span class="feed-text">School will be closed next Monday for maintenance</span>
+</div>
+<div class="feed-item">
+<div class="feed-date">Yesterday</div>
+<span class="feed-text">Staff meeting scheduled for Friday at 3 PM</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Delete Timetable Entry</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'time_table' %}">Timetable</a></li>
+                        <li class="breadcrumb-item active">Delete</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <p>Are you sure you want to delete this timetable entry?</p>
+                            <p><strong>{{ object.day }}</strong> {{ object.start_time|time:"H:i" }} - {{ object.end_time|time:"H:i" }}: {{ object.subject }} ({{ object.teacher }})</p>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                                <a href="{% url 'time_table' %}" class="btn btn-link">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

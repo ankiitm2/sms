@@ -1,0 +1,40 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<h2 class="mb-4">Timetable</h2>
+<div class="table-responsive">
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Time</th>
+        {% for day in "Monday Tuesday Wednesday Thursday Friday Saturday".split %}
+          <th>{{ day }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for time in "08:00 09:00 10:00 11:00 12:00 13:00 14:00 15:00".split %}
+      <tr>
+        <td>{{ time }}</td>
+        {% for day in "Monday Tuesday Wednesday Thursday Friday Saturday".split %}
+        <td>
+          {% with timetable|get_item:day|get_item:time as entries %}
+            {% if entries %}
+              {% for entry in entries %}
+                <div style="background-color: {{ entry.color }}; color: #fff; padding: 5px; border-radius: 5px;">
+                  <strong>{{ entry.subject }}</strong><br>
+                  {{ entry.teacher.get_full_name }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
