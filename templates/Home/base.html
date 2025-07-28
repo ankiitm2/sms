@@ -110,12 +110,7 @@
                         </p>
                         </div>
                      </div>
-                     <a class="dropdown-item" href="
-                        {% if user.is_student %}{% url 'student_profile' %}
-                        {% elif user.is_teacher %}{% url 'teacher_profile' %}
-                        {% else %}#{% endif %}">
-                        My Profile
-                     </a>
+                    <a class="dropdown-item" href="{% url 'edit_profile' %}">My Profile</a>
                      <a class="dropdown-item" href="inbox.html">Inbox</a>
                      <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                   </div>
@@ -139,8 +134,8 @@
                      <li class="{% if 'timetable' in current_path %}active{% endif %}">
                         <a href="{% url 'timetable' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
                      </li>
-                     <li class="{% if 'exam' in current_path %}active{% endif %}">
-                        <a href="exam.html"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
+                     <li class="{% if 'exam_list' in current_path %}active{% endif %}">
+                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
                      </li>
                      {% elif user.is_teacher %}
                      <!-- Teacher specific menu items -->
@@ -213,7 +208,7 @@
                         <a href="fees.html"><i class="fas fa-comment-dollar"></i> <span>Fees</span></a>
                      </li>
                      <li>
-                        <a href="exam.html"><i class="fas fa-clipboard-list"></i> <span>Exam list</span></a>
+                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exam list</span></a>
                      </li>
                      <li>
                         <a href="event.html"><i class="fas fa-calendar-day"></i> <span>Events</span></a>

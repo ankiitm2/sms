@@ -9,40 +9,81 @@ from school.models import Notification
 from .models import Timetable
 from django.contrib.auth import get_user_model
 from django.views import View
+from django.utils import timezone
+from student.models import Student, Parent
 
 
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
-        # Update basic fields
-        request.user.first_name = request.POST.get('first_name', request.user.first_name)
-        request.user.last_name = request.POST.get('last_name', request.user.last_name)
-        request.user.email = request.POST.get('email', request.user.email)
-        
-        # Handle profile picture upload
-        if 'profile_picture' in request.FILES:
-            # Delete old picture if exists
-            if request.user.profile_picture:
-                request.user.profile_picture.delete(save=False)
-            # Save new picture
-            request.user.profile_picture = request.FILES['profile_picture']
+        try:
+            # Update user fields
+            request.user.first_name = request.POST.get('first_name')
+            request.user.last_name = request.POST.get('last_name')
+            request.user.email = request.POST.get('email')
+            
+            if 'profile_picture' in request.FILES:
+                if request.user.profile_picture:
+                    request.user.profile_picture.delete()
+                request.user.profile_picture = request.FILES['profile_picture']
+            
+            request.user.save()
 
-        if request.user.is_teacher:
-            request.user.phone = request.POST.get('phone', request.user.phone)
-            request.user.department = request.POST.get('department', request.user.department)
-            request.user.qualification = request.POST.get('qualification', request.user.qualification)
-        
-        request.user.save()
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('edit_profile')
+            if request.user.is_student:
+                # Get or create student profile with all required fields
+                student, created = Student.objects.get_or_create(
+                    user=request.user,
+                    defaults={
+                        'first_name': request.user.first_name,
+                        'last_name': request.user.last_name,
+                        'student_class': request.POST.get('student_class', 'Class 1'),
+                        'section': request.POST.get('section', 'A'),
+                        'date_of_birth': '2000-01-01',  # Default value
+                        'gender': 'Male',               # Default value
+                        'joining_date': timezone.now().date(),
+                        'mobile_number': request.POST.get('mobile_number', ''),
+                        'admission_number': '',
+                        'parent': Parent.objects.create()  # Create minimal parent
+                    }
+                )
+                
+                # Update student fields
+                if not created:
+                    student.mobile_number = request.POST.get('mobile_number', '')
+                    student.student_class = request.POST.get('student_class', 'Class 1')
+                    student.section = request.POST.get('section', 'A')
+                    student.save()
+
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('edit_profile')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
+    
+    # Prepare context with class and section options
+    CLASS_CHOICES = [
+        'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
+        'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
+        'Class 11', 'Class 12'
+    ]
+    SECTION_CHOICES = ['A', 'B', 'C', 'D']
     
     context = {
         'user': request.user,
+        'class_options': CLASS_CHOICES,
+        'section_options': SECTION_CHOICES,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False
         ).count()
     }
+    
+    if request.user.is_student:
+        try:
+            context['student'] = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            pass
+    
     return render(request, 'profile/edit.html', context)
 
 def signup_view(request):
@@ -82,18 +123,27 @@ def signup_view(request):
             if profile_picture:
                 user.profile_picture = profile_picture
 
-            # Assign the appropriate role
             if role == 'student':
                 user.is_student = True
-            elif role == 'teacher':
-                user.is_teacher = True
-            elif role == 'admin':
-                user.is_admin = True
-
+                # Create complete student profile
+                Student.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    student_class=request.POST.get('student_class', 'Class 1'),
+                    section=request.POST.get('section', 'A'),
+                    date_of_birth='2000-01-01',  # Default value
+                    joining_date=timezone.now().date(),
+                    gender='Male',
+                    mobile_number='',
+                    admission_number='',
+                    parent=Parent.objects.create()  # Minimal parent record
+                )
+            
             user.save()
             login(request, user)
             messages.success(request, 'Signup successful!')
-            return redirect('dashboard')  # Redirect to dashboard after signup
+            return redirect('dashboard')
             
         except Exception as e:
             messages.error(request, f'Error during signup: {str(e)}')

@@ -6,16 +6,16 @@ from django.contrib.auth.decorators import login_required
 from home_auth.models import CustomUser
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-from .models import StudentTeacherRelationship
-from .models import Timetable
+from .models import StudentTeacherRelationship, Timetable, Exam
 from django.views.generic import ListView
 from student.models import Student
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .forms import TimetableForm
+from .forms import TimetableForm, ExamForm
 from datetime import time
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+import datetime
 
 def index(request):
     # Redirect to login page or dashboard based on authentication
@@ -45,19 +45,32 @@ def dashboard(request):
 @login_required
 def student_dashboard(request):
     if not request.user.is_student:
-        return HttpResponseForbidden("You don't have permission to access this page")
+        return HttpResponseForbidden()
     
-    unread_notification = Notification.objects.filter(
-        user=request.user, 
-        is_read=False
-    ).order_by('-created_at')
-    
-    context = {
-        'unread_notification': unread_notification,
-        'unread_notification_count': unread_notification.count(),
-        'user': request.user
-    }
-    return render(request, "students/student-dashboard.html", context)
+    try:
+        student = Student.objects.get(user=request.user)
+        
+        # Get exams for student's class and section
+        upcoming_exams = Exam.objects.filter(
+            student_class=student.student_class,
+            section=student.section,
+            date__gte=datetime.date.today()
+        ).order_by('date', 'start_time')
+        
+        context = {
+            'user': request.user,
+            'student': student,
+            'upcoming_exams': upcoming_exams,
+            'unread_notification_count': Notification.objects.filter(
+                user=request.user, 
+                is_read=False
+            ).count()
+        }
+        return render(request, "students/student-dashboard.html", context)
+        
+    except Student.DoesNotExist:
+        messages.error(request, "Student profile not found. Please complete your profile.")
+        return redirect('edit_profile')
 
 @login_required
 def student_teachers(request):
@@ -196,7 +209,24 @@ def edit_teacher(request, pk):
 def teacher_schedule(request):
     if not request.user.is_teacher:
         return HttpResponseForbidden()
-    return render(request, "teachers/teacher_schedule.html")
+    
+    # Get timetable entries for this teacher
+    timetable_entries = Timetable.objects.filter(
+        teacher=request.user
+    ).order_by('day', 'start_time')
+    
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    
+    context = {
+        'timetable_entries': timetable_entries,
+        'days': days,
+        'user': request.user,
+        'unread_notification_count': Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        ).count()
+    }
+    return render(request, "teachers/teacher_schedule.html", context)
 
 @login_required
 def create_assignment(request):
@@ -230,6 +260,73 @@ def teacher_profile(request):
         ).count()
     }
     return render(request, "teachers/teacher_profile.html", context)
+
+class ExamCreateView(LoginRequiredMixin, CreateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = 'exam_form.html'
+    success_url = reverse_lazy('exam_list')
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+    
+    def form_valid(self, form):
+        try:
+            if not self.request.user.is_admin:
+                form.instance.teacher = self.request.user
+            response = super().form_valid(form)
+            messages.success(self.request, 'Exam created successfully!')
+            return response
+        except Exception as e:
+            messages.error(self.request, f'Error creating exam: {str(e)}')
+            return self.form_invalid(form)
+
+class ExamUpdateView(LoginRequiredMixin, UpdateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = 'exam_form.html'
+    success_url = reverse_lazy('exam_list')
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+    
+    def form_valid(self, form):
+        if not self.request.user.is_admin:
+            form.instance.teacher = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, 'Exam updated successfully!')
+        return response
+
+class ExamListView(LoginRequiredMixin, ListView):
+    model = Exam
+    template_name = 'exam_list.html'
+    context_object_name = 'exams'
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+        
+        if user.is_teacher:
+            return queryset.filter(teacher=user)
+        elif user.is_student:
+            try:
+                student = Student.objects.get(user=user)
+                return queryset.filter(
+                    student_class=student.student_class,
+                    section=student.section
+                ).order_by('date', 'start_time')
+            except Student.DoesNotExist:
+                messages.error(self.request, "Student profile not found. Please complete your profile.")
+                return queryset.none()
+        elif user.is_admin:
+            return queryset.order_by('date', 'start_time')
+        
+        return queryset.none()
+
 
 @login_required
 def admin_dashboard(request):
@@ -281,7 +378,19 @@ class TimetableView(LoginRequiredMixin, ListView):
                 return queryset.none()
         elif self.request.user.is_teacher:
             return queryset.filter(teacher=self.request.user).order_by('day', 'start_time')
-        return queryset.order_by('day', 'start_time')
+        elif self.request.user.is_admin:
+            return queryset.order_by('day', 'start_time')
+        return queryset.none()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['days'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        context['user'] = self.request.user
+        context['unread_notification_count'] = Notification.objects.filter(
+            user=self.request.user, 
+            is_read=False
+        ).count()
+        return context
     
 class TimetableCreateView(LoginRequiredMixin, CreateView):
     model = Timetable
@@ -290,9 +399,14 @@ class TimetableCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('time_table')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        obj = form.save(commit=False)
+        obj.teacher = self.request.user
+        obj.student_class = form.cleaned_data['student_class']
+        obj.section = form.cleaned_data['section']
+        obj.save()
         messages.success(self.request, 'Timetable entry added successfully!')
-        return response
+        return super().form_valid(form)
+
 
 class TimetableCalendarView(LoginRequiredMixin, View):
     def get(self, request):
@@ -348,3 +462,20 @@ class TimetableDeleteView(LoginRequiredMixin, DeleteView):
     model = Timetable
     template_name = 'timetable_confirm_delete.html'
     success_url = reverse_lazy('time_table')
+
+class ExamUpdateView(LoginRequiredMixin, UpdateView):
+    model = Exam
+    form_class = ExamForm
+    template_name = 'exam_form.html'
+    success_url = reverse_lazy('exam_list')
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if not self.request.user.is_admin:
+            kwargs['instance'].teacher = self.request.user
+        return kwargs
+
+class ExamDeleteView(LoginRequiredMixin, DeleteView):
+    model = Exam
+    template_name = 'exam_confirm_delete.html'
+    success_url = reverse_lazy('exam_list')
