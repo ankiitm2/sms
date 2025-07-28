@@ -67,64 +67,114 @@ def student_list(request):
     return render(request, "students/students.html", context)
 
 @login_required
-def student_profile(request):
-    if not request.user.is_student:
-        return HttpResponseForbidden()
-    
-    try:
-        # Updated query to use the correct field name
-        student = Student.objects.get(user=request.user)
-    except Student.DoesNotExist:
-        student = None
-    
-    context = {
-        'user': request.user,
-        'student': student,
-        'unread_notification_count': Notification.objects.filter(
-            user=request.user, 
-            is_read=False
-        ).count()
-    }
-    return render(request, "students/profile.html", context)
-
-@login_required
-def edit_student_profile(request):
-    if not request.user.is_student:
-        return HttpResponseForbidden()
-
-    student = None
-    try:
-        student = Student.objects.get(user=request.user)
-    except Student.DoesNotExist:
-        pass
-
+def edit_profile(request):
     if request.method == 'POST':
         try:
             # Update user fields
-            request.user.first_name = request.POST.get('first_name', request.user.first_name)
-            request.user.last_name = request.POST.get('last_name', request.user.last_name)
-            request.user.email = request.POST.get('email', request.user.email)
+            request.user.first_name = request.POST.get('first_name')
+            request.user.last_name = request.POST.get('last_name')
+            request.user.email = request.POST.get('email')
             
-            # Handle profile picture upload
             if 'profile_picture' in request.FILES:
+                if request.user.profile_picture:
+                    request.user.profile_picture.delete()
                 request.user.profile_picture = request.FILES['profile_picture']
             
             request.user.save()
-            
-            # Update student fields if they exist
-            if student:
-                student.mobile_number = request.POST.get('mobile_number', student.mobile_number)
+
+            if request.user.is_student:
+                student, created = Student.objects.get_or_create(
+                    user=request.user,
+                    defaults={
+                        'first_name': request.user.first_name,
+                        'last_name': request.user.last_name,
+                        'student_class': 'Class 1',  # Default value
+                        'section': 'A',             # Default value
+                        'date_of_birth': '2000-01-01',  # Required field
+                        'gender': 'Male',           # Required field
+                        'joining_date': timezone.now().date(),
+                        'mobile_number': '',
+                        'admission_number': '',
+                        'parent': Parent.objects.create()  # Create minimal parent
+                    }
+                )
+                
+                # Update student fields
+                student.mobile_number = request.POST.get('mobile_number', '')
+                student.student_class = request.POST.get('student_class', 'Class 1')
+                student.section = request.POST.get('section', 'A')
                 student.save()
-            
+
             messages.success(request, 'Profile updated successfully!')
-            return redirect('student_profile')
+            return redirect('edit_profile')
             
         except Exception as e:
             messages.error(request, f'Error updating profile: {str(e)}')
     
     context = {
         'user': request.user,
+        'unread_notification_count': Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        ).count()
+    }
+    
+    if request.user.is_student:
+        try:
+            context['student'] = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            pass
+    
+    return render(request, 'profile/edit.html', context)
+
+@login_required
+def edit_student_profile(request):
+    if not request.user.is_student:
+        return HttpResponseForbidden()
+
+    # Get or create student profile
+    student, created = Student.objects.get_or_create(user=request.user)
+    
+    # Define class and section options
+    CLASS_CHOICES = [
+        'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
+        'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
+        'Class 11', 'Class 12'
+    ]
+    SECTION_CHOICES = ['A', 'B', 'C', 'D']
+
+    if request.method == 'POST':
+        try:
+            # Update user fields
+            request.user.first_name = request.POST.get('first_name')
+            request.user.last_name = request.POST.get('last_name')
+            request.user.email = request.POST.get('email')
+            
+            # Handle profile picture upload
+            if 'profile_picture' in request.FILES:
+                if request.user.profile_picture:
+                    request.user.profile_picture.delete()
+                request.user.profile_picture = request.FILES['profile_picture']
+            
+            request.user.save()
+            
+            # Update student fields
+            student.mobile_number = request.POST.get('mobile_number')
+            student.student_class = request.POST.get('student_class')
+            student.section = request.POST.get('section')
+            student.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('student_profile')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
+
+    context = {
+        'user': request.user,
         'student': student,
+        'class_options': CLASS_CHOICES,
+        'section_options': SECTION_CHOICES,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False

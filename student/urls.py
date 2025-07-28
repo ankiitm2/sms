@@ -6,8 +6,8 @@ urlpatterns = [
     path('add/', views.add_student, name="add_student"),
     path('list/', views.student_list, name="student_list"),
     path('students/<str:slug>/', views.view_student, name="view_student"),
-    path('student/profile/', views.student_profile, name='student_profile'),
-    path('student/profile/edit/', views.edit_student_profile, name='edit_student_profile'),
+    path('profile/', views.edit_profile, name='student_profile'),  # Changed from student_profile to edit_profile
+    path('profile/edit/', views.edit_student_profile, name='edit_student_profile'),
     path('edit/<str:slug>/', views.edit_student, name="edit_student"), 
     path('delete/<str:slug>/', views.delete_student, name="delete_student"),
 ]

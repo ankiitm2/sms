@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from home_auth.models import CustomUser
+from django.utils import timezone
 
 # Create your models here.
 class Parent(models.Model):
@@ -26,7 +27,7 @@ class Student(models.Model):
     date_of_birth = models.DateField()
     student_class = models.CharField(max_length=100)
     joining_date = models.DateField()
-    mobile_number = models.CharField(max_length=15)
+    mobile_number = models.CharField(max_length=15, default='')
     admission_number = models.CharField(max_length=15)
     section = models.CharField(max_length=15)
     student_image = models.ImageField(upload_to='student/', blank=True, null=True)
@@ -49,6 +50,17 @@ class Student(models.Model):
                     old.student_image.delete(save=False)
             except Student.DoesNotExist:
                 pass
+
+        if not self.date_of_birth:
+            self.date_of_birth = '2000-01-01'
+        if not self.joining_date:
+            self.joining_date = timezone.now().date()
+        if not self.gender:
+            self.gender = 'Male'
+        if not self.student_class:
+            self.student_class = 'Class 1'
+        if not self.section:
+            self.section = 'A'
         
         # Generate slug if not exists
         if not self.slug:
@@ -61,7 +73,7 @@ class Student(models.Model):
                 counter += 1
                 
             self.slug = unique_slug
-    
+            
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

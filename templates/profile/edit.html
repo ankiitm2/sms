@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'Home/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block body %}
 <div class="page-wrapper">
     <div class="content container-fluid">
         <div class="page-header">
@@ -67,7 +67,49 @@
                                         <label>Email</label>
                                         <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
                                     </div>
+                                    <!-- Add this after the email field in your form -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" class="form-control" name="mobile_number" 
+                   value="{% if student.mobile_number %}{{ student.mobile_number }}{% endif %}" required>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Class</label>
+            <select class="form-control" name="student_class" required>
+                <option value="">Select Class</option>
+                {% for class_option in class_options %}
+                    <option value="{{ class_option }}" 
+                        {% if student.student_class == class_option %}selected{% endif %}>
+                        {{ class_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Section</label>
+            <select class="form-control" name="section" required>
+                <option value="">Select Section</option>
+                {% for section_option in section_options %}
+                    <option value="{{ section_option }}" 
+                        {% if student.section == section_option %}selected{% endif %}>
+                        {{ section_option }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
                                 </div>
+                                
                             </div>
                             
                             <div class="text-end">

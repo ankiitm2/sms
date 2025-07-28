@@ -5,7 +5,7 @@ from .views import (
     grade_submissions, take_attendance, teacher_profile,
     teacher_list, add_teacher, edit_teacher, admin_dashboard,
     mark_notification_as_read, clear_all_notification,
-    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView
+    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView
 )
 
 urlpatterns = [
@@ -34,6 +34,11 @@ urlpatterns = [
     path('time-table/<int:pk>/delete/', TimetableDeleteView.as_view(), name='delete_timetable'),
     path('time-table/calendar/', TimetableCalendarView.as_view(), name='timetable_calendar'),
     
+    path('exams/', ExamListView.as_view(), name='exam_list'),
+    path('exams/add/', ExamCreateView.as_view(), name='add_exam'),
+    path('exams/<int:pk>/edit/', ExamUpdateView.as_view(), name='edit_exam'),
+    path('exams/<int:pk>/delete/', ExamDeleteView.as_view(), name='delete_exam'),
+
     # Admin URLs
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
     

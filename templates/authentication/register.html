@@ -17,6 +17,11 @@
 <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
 <!-- Custom CSS -->
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+#classField, #sectionField {
+    display: none;
+}
+</style>
 </head>
 <body>
 
@@ -54,11 +59,28 @@
                                 <input class="form-control" type="email" name="email" placeholder="Email" required>
                             </div>
                             <div class="form-group">
-                                <select class="form-control" name="role" required>
+                                <select class="form-control" name="role" id="roleSelect" required>
                                     <option value="" disabled selected>Select your role</option>
                                     <option value="student">Student</option>
                                     <option value="teacher">Teacher</option>
-                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="classField">
+                                <select class="form-control" name="student_class" id="studentClass" required>
+                                    <option value="">Select Class</option>
+                                    {% for i in "123456789101112" %}
+                                        <option value="Class {{ i }}">Class {{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group" id="sectionField">
+                                <select class="form-control" name="section" id="studentSection" required>
+                                    <option value="">Select Section</option>
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -113,6 +135,15 @@ document.querySelector('.custom-file-input').addEventListener('change', function
     var fileName = e.target.files[0].name;
     var nextSibling = e.target.nextElementSibling;
     nextSibling.innerText = fileName;
+});
+</script>
+<script>
+document.getElementById('roleSelect').addEventListener('change', function() {
+    const isStudent = this.value === 'student';
+    document.getElementById('classField').style.display = isStudent ? 'block' : 'none';
+    document.getElementById('sectionField').style.display = isStudent ? 'block' : 'none';
+    document.getElementById('studentClass').required = isStudent;
+    document.getElementById('studentSection').required = isStudent;
 });
 </script>
 </body>
