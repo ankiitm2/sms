@@ -1,206 +1,368 @@
 {% extends 'Home/base.html' %}
 {% load static %}
 {% block body %}
-   
-
 
 <div class="page-wrapper">
-<div class="content container-fluid">
-<div class="page-header">
-<div class="row">
-<div class="col-sm-12">
-<h3 class="page-title">Student Details</h3>
-<ul class="breadcrumb">
-<li class="breadcrumb-item"><a href="/student">Student</a></li>
-<li class="breadcrumb-item active">Student Details</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="card">
-<div class="card-body">
-<div class="row">
-<div class="col-md-12">
-<div class="about-info">
-<h4>About Me</h4>
-<div class="media mt-3">
-<img src="{{student.student_image.url}}" class="mr-3" alt="...">
-<div class="media-body">
-<ul>
-<li>
-<span class="title-span">Full Name : </span>
-<span class="info-span">{{ student.first_name}}</span>
-</li>
-<li>
-<span class="title-span">Department : </span>
-<span class="info-span">{{student.section}}</span>
-</li>
-<li>
-<span class="title-span">Mobile : </span>
-<span class="info-span">{{student.mobile_number}}</span>
-</li>
-<li>
-<span class="title-span">Email : </span>
-<span class="info-span"><a href="{{student.parent.father_email}}" class="__cf_email__" data-cfemail="7216131b010b32151f131b1e5c111d1f">[email&#160;protected]</a></span>
-</li>
-<li>
-<span class="title-span">Gender : </span>
-<span class="info-span">{{student.gender}}</span>
-</li>
-<li>
-<span class="title-span">DOB : </span>
-<span class="info-span">{{student.date_of_birth}}</span>
-</li>
-</ul>
-</div>
-</div>
-<div class="row mt-3">
-<div class="col-md-12">
-<p>Hello I am Daisy Parks. Lorem Ipsum is simply dummy text of the printing and typesetting industry, simply dummy text of the printing and typesetting industry.</p>
-</div>
-</div>
-<div class="row follow-sec">
-<div class="col-md-4 mb-3">
-<div class="blue-box">
-<h3>2850</h3>
-<p>Followers</p>
-</div>
-</div>
-<div class="col-md-4 mb-3">
-<div class="blue-box">
-<h3>2050</h3>
-<p>Following</p>
-</div>
-</div>
-<div class="col-md-4 mb-3">
-<div class="blue-box">
-<h3>2950</h3>
-<p>Friends</p>
-</div>
-</div>
-</div>
-<div class="row mt-2">
-<div class="col-md-12">
-<h5>Permanent Address</h5>
-<p>480, Estern Avenue, Courtage area, New York</p>
-</div>
-</div>
-<div class="row mt-2">
-<div class="col-md-12">
-<h5>Present Address</h5>
-<p>480, Estern Avenue, Courtage area, New York</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="row mt-2">
-<div class="col-md-12">
-<div class="skill-info">
-<h4>Skills</h4>
-<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry, simply dummy text of the printing and typesetting industry</p>
-<ul>
-<li>
-<label>Lorem Ipsum is simply</label>
-<div class="progress">
-<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
-</div>
-</li>
-<li>
-<label>Lorem Ipsum is simply</label>
-<div class="progress">
-<div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100" style="width: 69%"></div>
-</div>
-</li>
-<li>
-<label>Lorem Ipsum is simply</label>
-<div class="progress">
-<div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" aria-valuenow="86" aria-valuemin="0" aria-valuemax="100" style="width: 86%"></div>
-</div>
-</li>
-<li>
- <label>Lorem Ipsum is simply</label>
-<div class="progress">
-<div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" style="width: 65%"></div>
-</div>
-</li>
-</ul>
-<div class="row mt-3">
-<div class="col-md-12">
-<h5>Education</h5>
-<p class="mt-3">Secondary Schooling at xyz school of secondary education, Mumbai.</p>
-<p>Higher Secondary Schooling at xyz school of higher secondary education, Mumbai.</p>
-<p>Bachelor of Science at Abc College of Art and Science, Chennai.</p>
-<p>Master of Science at Cdm College of Engineering and Technology, Pune.</p>
-</div>
-</div>
-<div class="row mt-3">
-<div class="col-md-12">
-<h5>Certificates</h5>
-<p class="mt-3">1st Prise in Running Competition.</p>
-<p>Lorem Ipsum is simply dummy text.</p>
-<p>Won overall star student in higher secondary education.</p>
-<p>Lorem Ipsum is simply dummy text.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="row mt-2">
-<div class="col-md-12">
-<div class="skill-info">
-<h4>Settings</h4>
-<form>
-<div class="row mt-3">
-<div class="col-12 col-sm-6">
-<div class="form-group">
-<label>Username</label>
-<input type="text" class="form-control">
-</div>
-</div>
-<div class="col-12 col-sm-6">
-<div class="form-group">
-<label>Current Password</label>
-<input type="password" class="form-control">
-</div>
-</div>
-<div class="col-12 col-sm-6">
-<div class="form-group">
-<label>New Password</label>
-<input type="password" class="form-control">
-</div>
-</div>
-<div class="col-12">
-<button type="submit" class="btn btn-primary">Submit</button>
-</div>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
+    <div class="content container-fluid">
+        <!-- Animated Breadcrumb -->
+        <div class="page-header animate__animated animate__fadeIn">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h3 class="page-title">Student Details</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'student_list' %}" class="hover-scale">Students</a></li>
+                        <li class="breadcrumb-item active text-primary">{{ student.first_name }} {{ student.last_name }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="card-body">
+                <!-- Profile Header with Floating Animation -->
+                <div class="profile-header hover-float px-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto profile-image">
+                            <img src="{{ student.student_image.url|default:'/static/img/profiles/avatar-02.jpg' }}" 
+                                 class="rounded-circle shadow-sm hover-scale" 
+                                 alt="Student Image"
+                                 onerror="this.src='{% static 'img/profiles/avatar-02.jpg' %}'">
+                        </div>
+                        <div class="col ml-md-n2 profile-user-info">
+                            <h4 class="user-name mb-0">{{ student.first_name }} {{ student.last_name }}</h4>
+                            <h6 class="text-muted">{{ student.student_class }} - Section {{ student.section }}</h6>
+                            <div class="user-rating">
+                                <span class="badge badge-pill badge-success pulse">Student ID: {{ student.student_id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <!-- Personal Info Card with Slide-in Animation -->
+                    <div class="col-lg-6 mb-4 animate__animated animate__fadeInLeft">
+                        <div class="card profile-card hover-glow">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title"><i class="fas fa-user-circle mr-2"></i>Personal Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled personal-info">
+                                    <li class="hover-slide">
+                                        <span class="title">Date of Birth:</span>
+                                        <span class="text">{{ student.date_of_birth|date:"F d, Y" }}</span>
+                                    </li>
+                                    <li class="hover-slide">
+                                        <span class="title">Gender:</span>
+                                        <span class="text">{{ student.gender }}</span>
+                                    </li>
+                                    <li class="hover-slide">
+                                        <span class="title">Blood Group:</span>
+                                        <span class="text">{{ student.blood_group|default:"Not specified" }}</span>
+                                    </li>
+                                    <li class="hover-slide">
+                                        <span class="title">Mobile:</span>
+                                        <span class="text">{{ student.mobile_number|default:"Not specified" }}</span>
+                                    </li>
+                                    <li class="hover-slide">
+                                        <span class="title">Admission Number:</span>
+                                        <span class="text">{{ student.admission_number }}</span>
+                                    </li>
+                                    <li class="hover-slide">
+                                        <span class="title">Joining Date:</span>
+                                        <span class="text">{{ student.joining_date|date:"F d, Y" }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Parent Info Card with Slide-in Animation -->
+                        <div class="card profile-card mt-4 hover-glow animate__animated animate__fadeInLeft animate__delay-1s">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title"><i class="fas fa-users mr-2"></i>Parent Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="parent-info">
+                                    <h6 class="d-flex align-items-center">
+                                        <i class="fas fa-male mr-2"></i>Father
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li class="hover-slide"><strong>Name:</strong> {{ student.parent.father_name }}</li>
+                                        <li class="hover-slide"><strong>Occupation:</strong> {{ student.parent.father_occupation|default:"Not specified" }}</li>
+                                        <li class="hover-slide"><strong>Phone:</strong> {{ student.parent.father_mobile }}</li>
+                                        <li class="hover-slide"><strong>Email:</strong> {{ student.parent.father_email }}</li>
+                                    </ul>
+                                    
+                                    <h6 class="mt-3 d-flex align-items-center">
+                                        <i class="fas fa-female mr-2"></i>Mother
+                                    </h6>
+                                    <ul class="list-unstyled">
+                                        <li class="hover-slide"><strong>Name:</strong> {{ student.parent.mother_name }}</li>
+                                        <li class="hover-slide"><strong>Occupation:</strong> {{ student.parent.mother_occupation|default:"Not specified" }}</li>
+                                        <li class="hover-slide"><strong>Phone:</strong> {{ student.parent.mother_mobile }}</li>
+                                        <li class="hover-slide"><strong>Email:</strong> {{ student.parent.mother_email }}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Address Info Card with Slide-in Animation -->
+                    <div class="col-lg-6 mb-4 animate__animated animate__fadeInRight">
+                        <div class="card profile-card hover-glow">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title"><i class="fas fa-map-marker-alt mr-2"></i>Address Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="address-info">
+                                    <h6 class="d-flex align-items-center">
+                                        <i class="fas fa-home mr-2"></i>Present Address
+                                    </h6>
+                                    <p class="hover-slide">{{ student.parent.present_address|default:"Not specified" }}</p>
+                                    
+                                    <h6 class="mt-3 d-flex align-items-center">
+                                        <i class="fas fa-building mr-2"></i>Permanent Address
+                                    </h6>
+                                    <p class="hover-slide">{{ student.parent.permanent_address|default:"Not specified" }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Info Card with Slide-in Animation -->
+                        <div class="card profile-card mt-4 hover-glow animate__animated animate__fadeInRight animate__delay-1s">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title"><i class="fas fa-info-circle mr-2"></i>Additional Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="additional-info">
+                                    <h6 class="d-flex align-items-center">
+                                        <i class="fas fa-heartbeat mr-2"></i>Medical Conditions
+                                    </h6>
+                                    <p class="hover-slide">{{ student.medical_conditions|default:"None" }}</p>
+                                    
+                                    <h6 class="mt-3 d-flex align-items-center">
+                                        <i class="fas fa-phone-alt mr-2"></i>Emergency Contact
+                                    </h6>
+                                    <p class="hover-slide">{{ student.emergency_contact|default:"Not specified" }}</p>
+                                    
+                                    <h6 class="mt-3 d-flex align-items-center">
+                                        <i class="fas fa-paint-brush mr-2"></i>Hobbies
+                                    </h6>
+                                    <p class="hover-slide">{{ student.hobbies|default:"Not specified" }}</p>
+                                    
+                                    <h6 class="mt-3 d-flex align-items-center">
+                                        <i class="fas fa-trophy mr-2"></i>Achievements
+                                    </h6>
+                                    <p class="hover-slide">{{ student.achievements|default:"None" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_admin or user.is_teacher %}
+                <!-- Actions Card with Bounce Animation -->
+                <div class="row mt-4 animate__animated animate__bounceIn animate__delay-2s">
+                    <div class="col-md-12">
+                        <div class="card hover-scale">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="card-title"><i class="fas fa-cogs mr-2"></i>Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <a href="{% url 'edit_student' student.slug %}" class="btn btn-primary mr-2 hover-grow">
+                                    <i class="fas fa-edit mr-1"></i> Edit Profile
+                                </a>
+                                <a href="#" class="btn btn-danger hover-grow" data-toggle="modal" data-target="#deleteStudentModal">
+                                    <i class="fas fa-trash mr-1"></i> Delete Student
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
-<footer>
-<p>Copyright © 2020 Dreamguys.</p>
-</footer>
-
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteStudentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete {{ student.first_name }} {{ student.last_name }}? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary hover-grow" data-dismiss="modal">Cancel</button>
+                <form method="POST" action="{% url 'delete_student' student.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger hover-grow">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-</div>
+<!-- Add Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 
+<style>
+    /* Base Styles */
+    .profile-header {
+        padding: 20px 0;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-image img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid #4e73df;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-card {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        border: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .profile-card .card-header {
+        border-radius: 10px 10px 0 0 !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* Animation Classes */
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+    
+    .hover-glow {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .hover-glow:hover {
+        box-shadow: 0 5px 20px rgba(78, 115, 223, 0.3);
+    }
+    
+    .hover-float {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-float:hover {
+        transform: translateY(-5px);
+    }
+    
+    .hover-slide {
+        transition: all 0.3s ease;
+        padding-left: 5px;
+        border-left: 2px solid transparent;
+    }
+    
+    .hover-slide:hover {
+        padding-left: 10px;
+        border-left: 2px solid #4e73df;
+    }
+    
+    .hover-grow {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-grow:hover {
+        transform: scale(1.05);
+    }
+    
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    /* List Item Styles */
+    .personal-info li {
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .personal-info li:last-child {
+        border-bottom: none;
+    }
+    
+    .personal-info .title {
+        font-weight: 600;
+        color: #6c757d;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 767px) {
+        .profile-image {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .profile-user-info {
+            text-align: center;
+            padding-left: 15px;
+        }
+    }
+</style>
 
-<script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="{%static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script>
+    // Add animation on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements when they come into view
+        const animateOnScroll = function() {
+            const elements = document.querySelectorAll('.animate__animated');
+            
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const screenPosition = window.innerHeight / 1.2;
+                
+                if (elementPosition < screenPosition) {
+                    element.style.opacity = '1';
+                }
+            });
+        };
+        
+        // Set initial opacity to 0 for animated elements
+        document.querySelectorAll('.animate__animated').forEach(el => {
+            el.style.opacity = '0';
+        });
+        
+        // Run on load and scroll
+        window.addEventListener('load', animateOnScroll);
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Add hover effect to profile image
+        const profileImg = document.querySelector('.profile-image img');
+        if (profileImg) {
+            profileImg.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1) rotate(5deg)';
+            });
+            profileImg.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotate(0)';
+            });
+        }
+    });
+</script>
 
-<script src="{%static 'assets/js/popper.min.js' %}"></script>
-<script src="{%static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
-
-<script src="{%static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
-
-<script src="{%static 'assets/js/script.js' %}"></script>
-</body>
-
-<!-- Mirrored from preschool.dreamguystech.com/html-template/student-details.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 28 Oct 2021 11:11:50 GMT -->
-</html>
 {% endblock %}

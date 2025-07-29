@@ -17,9 +17,9 @@
       <div class="main-wrapper">
          <div class="header">
             <div class="header-left">
-             <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'login' %}{% endif %}" class="logo">
+             <a href="{% if user.is_authenticated %}{% if user.is_student %}{% url 'student_dashboard' %}{% elif user.is_teacher %}{% url 'teacher_dashboard' %}{% elif user.is_admin %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}{% else %}{% url 'login' %}{% endif %}" class="logo">
                <img src="{% static 'img/logo.png' %}" alt="Logo">
-               </a>
+            </a>
                <a href="{% static 'img/index.html' %}" class="logo logo-small">
                <img src="{% static 'img/logo-small.png' %}" alt="Logo" width="30" height="30">
                </a>
@@ -130,9 +130,9 @@
                      <li class="{% if current_url_name == 'student_list' %}active{% endif %}">
                         <a href="{% url 'student_list' %}"><i class="fas fa-users"></i> <span>Classmates</span></a>
                      </li>
-                     <li class="{% if 'timetable' in current_path %}active{% endif %}">
+                     <!-- <li class="{% if 'timetable' in current_path %}active{% endif %}">
                         <a href="{% url 'timetable' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
-                     </li>
+                     </li> -->
                      <li class="{% if 'exam_list' in current_path %}active{% endif %}">
                         <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
                      </li>
@@ -142,17 +142,15 @@
                      <!-- Admin specific menu items -->
                      {% endif %}
                      
-                     <!-- Common items for all roles -->
-                     <!-- <li class="{% if 'student_profile' in current_path %}active{% endif %}">
-                        <a href="{% url 'student_profile' %}"><i class="fas fa-user"></i> <span>My Profile</span></a>
-                     </li> -->
+                     {% if user.is_teacher %}
                      <li class="submenu {% if 'student_list' in current_url_name or 'add_student' in current_url_name or 'edit_student' in current_url_name or 'view_student' in current_url_name %}active{% endif %}">
-                           <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
-                           <ul>
-                              <li class="{% if current_url_name == 'student_list' %}active{% endif %}"><a href="{% url 'student_list' %}">Student List</a></li>
-                              <li class="{% if current_url_name == 'add_student' %}active{% endif %}"><a href="{% url 'add_student' %}">Student Add</a></li>
-                           </ul>
+                        <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
+                        <ul>
+                           <li class="{% if current_url_name == 'student_list' %}active{% endif %}"><a href="{% url 'student_list' %}">Student List</a></li>
+                           <li class="{% if current_url_name == 'add_student' %}active{% endif %}"><a href="{% url 'add_student' %}">Student Add</a></li>
+                        </ul>
                      </li>
+                     {% endif %}
                      {% if user.is_student %}
                      <li class="nav-item {% if 'student_teachers' in current_url_name %}active{% endif %}">
                         <a href="{% url 'student_teachers' %}" class="nav-link">
@@ -186,6 +184,9 @@
                            <li><a href="edit-subject.html">Subject Edit</a></li>
                         </ul>
                      </li>
+                     <li>
+                       <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
+                     </li>
                      <li class="menu-title">
                         <span>Management</span>
                      </li>
@@ -212,9 +213,7 @@
                      <li>
                         <a href="event.html"><i class="fas fa-calendar-day"></i> <span>Events</span></a>
                      </li>
-                     <li>
-                       <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
-                     </li>
+                     
                      <li>
                         <a href="library.html"><i class="fas fa-book"></i> <span>Library</span></a>
                      </li>
