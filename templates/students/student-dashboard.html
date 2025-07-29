@@ -1,8 +1,21 @@
 {% extends 'Home/base.html' %}
 {% load static %}
 {% block body %}
-
 <div class="page-wrapper">
+    <style>
+        .past-exam {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+        
+        .past-exam:hover {
+            background-color: #e9ecef;
+        }
+        
+        .upcoming-exam {
+            background-color: white;
+        }
+    </style>
     <div class="content container-fluid">
         <!-- Animated Welcome Header -->
         <div class="page-header animate__animated animate__fadeIn">
@@ -258,74 +271,46 @@
                     </div>
                     
                     <div class="col-md-6">
-                        <!-- Upcoming Exams Card with Tilt Effect -->
-                        <div class="card card-table mt-4 hover-tilt">
-                            <div class="card-header">
-                                <h5 class="card-title">Upcoming Exams</h5>
-                            </div>
-                            <div class="card-body">
-                                {% if upcoming_exams %}
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-center mb-0">
-                                        <thead class="thead-light">
-                                             <tr>
-                                                <th>Exam</th>
-                                                <th>Subject</th>
-                                                <th>Date</th>
-                                                <th>Time</th>
-                                                <th>Room</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for exam in upcoming_exams %}
-                                            <tr class="hover-float">
-                                                 <td>{{ exam.name }}</td>
-                                                    <td>{{ exam.subject }}</td>
-                                                    <td>{{ exam.date|date:"M d, Y" }}</td>
-                                                    <td>{{ exam.start_time|time:"H:i" }} - {{ exam.end_time|time:"H:i" }}</td>
-                                                    <td>{{ exam.room }}</td>
-                                                </tr>
-                                                {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <a href="{% url 'exam_list' %}" class="btn btn-sm btn-link hover-grow">View All <i class="fas fa-chevron-right ml-1"></i></a>
-                                </div>
-                                {% else %}
-                                <div class="empty-state small hover-shake">
-                                    <div class="empty-state-icon">
-                                        <i class="fas fa-clipboard-check"></i>
-                                    </div>
-                                    <h6>No upcoming exams</h6>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="card mt-4">
-    <div class="card-header bg-secondary text-white">
-        <h5 class="card-title">Past Exams</h5>
+                       <!-- Exams Card -->
+<div class="card card-table animate__animated animate__fadeInLeft mt-4">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="card-title">All Exams</h5>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'exam_list' %}" class="btn btn-sm btn-outline-primary hover-grow">
+                    View Full List <i class="fas fa-chevron-right ml-1"></i>
+                </a>
+            </div>
+        </div>
     </div>
     <div class="card-body">
-        {% if past_exams %}
+        {% if exams %}
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table table-hover table-center mb-0">
+                <thead class="thead-light">
                     <tr>
                         <th>Exam</th>
                         <th>Subject</th>
                         <th>Date</th>
-                        <th>Results</th>
+                        <th>Time</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for exam in past_exams %}
-                    <tr>
+                    {% for exam in exams %}
+                    <tr class="{% if exam.date < today %}past-exam{% else %}upcoming-exam{% endif %}">
                         <td>{{ exam.name }}</td>
                         <td>{{ exam.subject }}</td>
                         <td>{{ exam.date|date:"M d, Y" }}</td>
+                        <td>{{ exam.start_time|time:"H:i" }} - {{ exam.end_time|time:"H:i" }}</td>
                         <td>
-                            <a href="#" class="btn btn-sm btn-outline-primary">View Results</a>
+                            {% if exam.date < today %}
+                                <span class="badge badge-pill badge-secondary">Completed</span>
+                            {% else %}
+                                <span class="badge badge-pill badge-primary">Upcoming</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -333,7 +318,13 @@
             </table>
         </div>
         {% else %}
-        <p class="text-muted">No past exams found</p>
+        <div class="empty-state hover-shake">
+            <div class="empty-state-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h4>No exams scheduled</h4>
+            <p class="text-muted">You don't have any exams scheduled yet</p>
+        </div>
         {% endif %}
     </div>
 </div>

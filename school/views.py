@@ -53,21 +53,22 @@ def student_dashboard(request):
     
     try:
         student = Student.objects.get(user=request.user)
+        today = timezone.now().date()
         
-        # Get exams for student's class and section (both upcoming and recent past)
+        # Get all exams for student's class and section
         exams = Exam.objects.filter(
             student_class=student.student_class,
             section=student.section
         ).order_by('date', 'start_time')
         
         # Separate into upcoming and past exams
-        today = datetime.date.today()
         upcoming_exams = exams.filter(date__gte=today)
         past_exams = exams.filter(date__lt=today)
         
         context = {
             'user': request.user,
             'student': student,
+            'exams': exams,  # Pass all exams
             'upcoming_exams': upcoming_exams,
             'past_exams': past_exams,
             'unread_notification_count': Notification.objects.filter(
@@ -420,14 +421,13 @@ class ExamListView(LoginRequiredMixin, ListView):
         user = self.request.user
         
         if user.is_teacher:
-            return queryset.filter(teacher=user)
+            return queryset.filter(teacher=user).order_by('date', 'start_time')
         elif user.is_student:
             try:
                 student = Student.objects.get(user=user)
                 return queryset.filter(
                     student_class=student.student_class,
-                    section=student.section,
-                    date__gte=timezone.now().date()  # Only show upcoming exams
+                    section=student.section
                 ).order_by('date', 'start_time')
             except Student.DoesNotExist:
                 return queryset.none()
@@ -435,6 +435,11 @@ class ExamListView(LoginRequiredMixin, ListView):
             return queryset.order_by('date', 'start_time')
         
         return queryset.none()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['today'] = timezone.now().date()
+        return context
 
 
 @login_required
