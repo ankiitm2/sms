@@ -16,6 +16,7 @@ from datetime import time
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
+from django.utils import timezone
 
 def index(request):
     # Redirect to login page or dashboard based on authentication
@@ -246,6 +247,23 @@ def take_attendance(request):
         return HttpResponseForbidden()
     return render(request, "teachers/attendance.html")
 
+
+@login_required
+def teacher_profile_view(request):
+    if not request.user.is_teacher:
+        return HttpResponseForbidden()
+    
+    context = {
+        'user': request.user,
+        'teacher': request.user,
+        'unread_notification_count': Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        ).count()
+    }
+    return render(request, "teachers/teacher_profile_view.html", context)
+
+
 @login_required
 def teacher_profile(request):
     if not request.user.is_teacher:
@@ -253,13 +271,54 @@ def teacher_profile(request):
     
     context = {
         'user': request.user,
-        'teacher': request.user,  # Assuming CustomUser has teacher fields
+        'teacher': request.user,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False
         ).count()
     }
     return render(request, "teachers/teacher_profile.html", context)
+
+@login_required
+def teacher_profile_edit(request):
+    if not request.user.is_teacher:
+        return HttpResponseForbidden()
+    
+    if request.method == 'POST':
+        try:
+            # Update basic user fields
+            request.user.first_name = request.POST.get('first_name')
+            request.user.last_name = request.POST.get('last_name')
+            request.user.email = request.POST.get('email')
+            request.user.phone = request.POST.get('phone')
+            request.user.department = request.POST.get('department')
+            request.user.qualification = request.POST.get('qualification')
+            
+            if 'joining_date' in request.POST:
+                request.user.joining_date = request.POST.get('joining_date')
+            
+            if 'profile_picture' in request.FILES:
+                if request.user.profile_picture:
+                    request.user.profile_picture.delete()
+                request.user.profile_picture = request.FILES['profile_picture']
+            
+            request.user.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('teacher_profile')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
+    
+    context = {
+        'user': request.user,
+        'unread_notification_count': Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        ).count()
+    }
+    return render(request, "teachers/teacher_profile_edit.html", context)
+
 
 class ExamCreateView(LoginRequiredMixin, CreateView):
     model = Exam
@@ -317,10 +376,10 @@ class ExamListView(LoginRequiredMixin, ListView):
                 student = Student.objects.get(user=user)
                 return queryset.filter(
                     student_class=student.student_class,
-                    section=student.section
+                    section=student.section,
+                    date__gte=timezone.now().date()  # Only show upcoming exams
                 ).order_by('date', 'start_time')
             except Student.DoesNotExist:
-                messages.error(self.request, "Student profile not found. Please complete your profile.")
                 return queryset.none()
         elif user.is_admin:
             return queryset.order_by('date', 'start_time')
