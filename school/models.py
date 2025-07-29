@@ -48,17 +48,22 @@ class Timetable(models.Model):
         ('#33FFF5', 'Teal'),
     ]
     
+    color = models.CharField(max_length=7, choices=COLOR_CHOICES, default='#3357FF')
     day = models.CharField(max_length=10, choices=DAY_CHOICES)
     start_time = models.TimeField()
     end_time = models.TimeField()
     subject = models.CharField(max_length=100)
-    teacher = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'is_teacher': True})
-    classroom = models.CharField(max_length=50)
+    teacher = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        limit_choices_to={'is_teacher': True}
+    )
     student_class = models.CharField(max_length=50)
-    section = models.CharField(max_length=10, blank=True, null=True)
-    color = models.CharField(max_length=7, choices=COLOR_CHOICES, default='#3357FF')
+    section = models.CharField(max_length=10)
+    classroom = models.CharField(max_length=50)
     
     class Meta:
+        unique_together = ('day', 'start_time', 'student_class', 'section')
         ordering = ['day', 'start_time']
     
     def __str__(self):

@@ -17,6 +17,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
 from django.utils import timezone
+from django.db.models import Q
 
 def index(request):
     # Redirect to login page or dashboard based on authentication
@@ -448,47 +449,32 @@ class TimetableView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.request.user.is_student:
+        user = self.request.user
+        
+        if user.is_student:
             try:
-                student = Student.objects.get(user=self.request.user)
+                student = Student.objects.get(user=user)
                 return queryset.filter(
                     student_class=student.student_class,
                     section=student.section
                 ).order_by('day', 'start_time')
             except Student.DoesNotExist:
+                messages.error(self.request, "Student profile not complete. Please update your class and section.")
                 return queryset.none()
-        elif self.request.user.is_teacher:
-            return queryset.filter(teacher=self.request.user).order_by('day', 'start_time')
-        elif self.request.user.is_admin:
+        elif user.is_teacher:
+            # Teachers see their own entries plus all entries for their classes
+            classes_teaching = queryset.filter(teacher=user).values_list(
+                'student_class', 'section'
+            ).distinct()
+            return queryset.filter(
+                Q(teacher=user) |
+                Q(student_class__in=[c[0] for c in classes_teaching],
+                  section__in=[c[1] for c in classes_teaching])
+            ).order_by('day', 'start_time')
+        elif user.is_admin:
             return queryset.order_by('day', 'start_time')
         return queryset.none()
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['days'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        context['user'] = self.request.user
-        context['unread_notification_count'] = Notification.objects.filter(
-            user=self.request.user, 
-            is_read=False
-        ).count()
-        return context
-    
-class TimetableCreateView(LoginRequiredMixin, CreateView):
-    model = Timetable
-    form_class = TimetableForm
-    template_name = 'timetable_form.html'
-    success_url = reverse_lazy('time_table')
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.teacher = self.request.user
-        obj.student_class = form.cleaned_data['student_class']
-        obj.section = form.cleaned_data['section']
-        obj.save()
-        messages.success(self.request, 'Timetable entry added successfully!')
-        return super().form_valid(form)
-
-
 class TimetableCalendarView(LoginRequiredMixin, View):
     def get(self, request):
         days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -508,25 +494,58 @@ class TimetableCalendarView(LoginRequiredMixin, View):
         else:
             timetable = Timetable.objects.all().order_by('day', 'start_time')
         
-        # Organize timetable by day and time
-        timetable_data = {day: {} for day in days}
-        for entry in timetable:
-            start_str = entry.start_time.strftime('%H:%M')
-            end_str = entry.end_time.strftime('%H:%M')
-            timetable_data[entry.day].setdefault(start_str, []).append({
-            'subject_name': entry.subject,
-            'teacher_name': entry.teacher.get_full_name(),
-            'class': entry.student_class,
-            'section': entry.section,
-        })
-
-        
         context = {
-            'entries': Timetable.objects.all().order_by('day', 'start_time'),
             'days': days,
             'time_slots': time_slots,
+            'entries': timetable,
+            'user': request.user,
+            'unread_notification_count': Notification.objects.filter(
+                user=request.user, 
+                is_read=False
+            ).count()
         }
         return render(request, 'timetable_calendar.html', context)
+    
+class TimetableCreateView(LoginRequiredMixin, CreateView):
+    model = Timetable
+    form_class = TimetableForm
+    template_name = 'timetable_form.html'
+    success_url = reverse_lazy('time_table')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        try:
+            # Set teacher automatically if user is teacher
+            if self.request.user.is_teacher:
+                form.instance.teacher = self.request.user
+            
+            # Ensure class and section are properly saved
+            student_class = form.cleaned_data['student_class']
+            section = form.cleaned_data['section']
+            
+            # Check for existing entries to prevent duplicates
+            if Timetable.objects.filter(
+                day=form.cleaned_data['day'],
+                start_time=form.cleaned_data['start_time'],
+                student_class=student_class,
+                section=section
+            ).exists():
+                messages.error(self.request, 'A timetable entry already exists for this time slot')
+                return self.form_invalid(form)
+            
+            # Save the instance
+            self.object = form.save()
+            
+            messages.success(self.request, 'Timetable entry added successfully!')
+            return redirect(self.get_success_url())
+            
+        except Exception as e:
+            messages.error(self.request, f'Error saving timetable: {str(e)}')
+            return self.form_invalid(form)
 
 class TimetableUpdateView(LoginRequiredMixin, UpdateView):
     model = Timetable
