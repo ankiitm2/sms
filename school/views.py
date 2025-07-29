@@ -18,6 +18,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
 from django.utils import timezone
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
+from datetime import timedelta
 
 def index(request):
     # Redirect to login page or dashboard based on authentication
@@ -52,17 +54,22 @@ def student_dashboard(request):
     try:
         student = Student.objects.get(user=request.user)
         
-        # Get exams for student's class and section
-        upcoming_exams = Exam.objects.filter(
+        # Get exams for student's class and section (both upcoming and recent past)
+        exams = Exam.objects.filter(
             student_class=student.student_class,
-            section=student.section,
-            date__gte=datetime.date.today()
+            section=student.section
         ).order_by('date', 'start_time')
+        
+        # Separate into upcoming and past exams
+        today = datetime.date.today()
+        upcoming_exams = exams.filter(date__gte=today)
+        past_exams = exams.filter(date__lt=today)
         
         context = {
             'user': request.user,
             'student': student,
             'upcoming_exams': upcoming_exams,
+            'past_exams': past_exams,
             'unread_notification_count': Notification.objects.filter(
                 user=request.user, 
                 is_read=False
@@ -356,11 +363,31 @@ class ExamCreateView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         try:
-            if not self.request.user.is_admin:
+            # Automatically set the teacher to the current user if they're a teacher
+            if self.request.user.is_teacher:
                 form.instance.teacher = self.request.user
+            elif not self.request.user.is_admin:
+                # Only admins can assign exams to other teachers
+                raise PermissionDenied("You don't have permission to create exams")
+            
             response = super().form_valid(form)
+            
+            # Create notifications for students in this class/section
+            students = Student.objects.filter(
+                student_class=form.instance.student_class,
+                section=form.instance.section
+            ).select_related('user')
+            
+            for student in students:
+                if student.user:  # Check if student has a user account
+                    Notification.objects.create(
+                        user=student.user,
+                        message=f"New exam scheduled: {form.instance.name} on {form.instance.date}"
+                    )
+            
             messages.success(self.request, 'Exam created successfully!')
             return response
+            
         except Exception as e:
             messages.error(self.request, f'Error creating exam: {str(e)}')
             return self.form_invalid(form)

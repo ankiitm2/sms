@@ -77,23 +77,19 @@ class Exam(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     student_class = models.CharField(max_length=50)
-    section = models.CharField(max_length=10, blank=True, null=True)
+    section = models.CharField(max_length=10, default='A')
     teacher = models.ForeignKey(
-        CustomUser, 
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        limit_choices_to={'is_teacher': True}
+        limit_choices_to={'is_teacher': True},
+        related_name='exams_created'
     )
     room = models.CharField(max_length=50)
     max_marks = models.PositiveIntegerField(default=100)
+    description = models.TextField(blank=True, null=True)
     
     class Meta:
         ordering = ['date', 'start_time']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['date', 'teacher'],
-                name='max_two_exams_per_teacher_per_day'
-            )
-        ]
     
     def __str__(self):
-        return f"{self.name} - {self.subject} ({self.date})"
+        return f"{self.name} - {self.subject} ({self.date}) for {self.student_class} {self.section}"

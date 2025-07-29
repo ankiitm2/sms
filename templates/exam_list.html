@@ -1,4 +1,4 @@
-{% extends 'Home/base.html' %}
+{% extends "Home/base.html" %}
 {% load static %}
 
 {% block body %}
@@ -13,7 +13,7 @@
                         <li class="breadcrumb-item active">Exams</li>
                     </ul>
                 </div>
-                {% if user.is_teacher %}
+                {% if user.is_teacher or user.is_admin %}
                 <div class="col-auto">
                     <a href="{% url 'add_exam' %}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Exam
@@ -23,63 +23,54 @@
             </div>
         </div>
 
-        {% if messages %}
         <div class="row">
-            <div class="col-md-12">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="row">
-            <div class="col-md-12">
+            <div class="col-sm-12">
                 <div class="card">
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover table-center mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Exam</th>
+                                        <th>Exam Name</th>
                                         <th>Subject</th>
-                                        <th>Class</th>
+                                        <th>Date</th>
                                         <th>Time</th>
+                                        <th>Class</th>
+                                        <th>Section</th>
                                         <th>Room</th>
-                                        {% if user.is_teacher %}
-                                        <th>Actions</th>
+                                        <th>Teacher</th>
+                                        {% if user.is_teacher or user.is_admin %}
+                                        <th class="text-right">Action</th>
                                         {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for exam in exams %}
                                     <tr>
-                                        <td>{{ exam.date|date:"M d, Y" }}</td>
                                         <td>{{ exam.name }}</td>
                                         <td>{{ exam.subject }}</td>
-                                        <td>{{ exam.student_class }}{% if exam.section %} - {{ exam.section }}{% endif %}</td>
+                                        <td>{{ exam.date|date:"M d, Y" }}</td>
                                         <td>{{ exam.start_time|time:"H:i" }} - {{ exam.end_time|time:"H:i" }}</td>
+                                        <td>{{ exam.student_class }}</td>
+                                        <td>{{ exam.section }}</td>
                                         <td>{{ exam.room }}</td>
-                                        {% if user.is_teacher %}
-                                        <td>
-                                            <a href="{% url 'edit_exam' exam.pk %}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <a href="{% url 'delete_exam' exam.pk %}" class="btn btn-sm btn-danger">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                        <td>{{ exam.teacher.get_full_name }}</td>
+                                        {% if user.is_teacher or user.is_admin %}
+                                        <td class="text-right">
+                                            <div class="actions">
+                                                <a href="{% url 'edit_exam' exam.pk %}" class="btn btn-sm bg-success-light mr-2">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <a href="{% url 'delete_exam' exam.pk %}" class="btn btn-sm bg-danger-light">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                         {% endif %}
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="{% if user.is_teacher %}7{% else %}6{% endif %}" class="text-center">No exams scheduled</td>
+                                        <td colspan="9" class="text-center">No exams scheduled</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
