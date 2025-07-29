@@ -224,10 +224,14 @@ class TimetableView(View):
             timetable_entries = Timetable.objects.filter(teacher=user)
         elif user.is_student:
             # Show timetable for student's class and section
-            timetable_entries = Timetable.objects.filter(
-                student_class=user.student_class,
-                section=user.section
-            )
+            try:
+                student = Student.objects.get(user=user)
+                timetable_entries = Timetable.objects.filter(
+                    student_class=student.student_class,
+                    section=student.section
+                ).order_by('day', 'start_time')
+            except Student.DoesNotExist:
+                timetable_entries = Timetable.objects.none()
         else:
             timetable_entries = Timetable.objects.none()
 
