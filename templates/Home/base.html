@@ -110,7 +110,7 @@
                         </p>
                         </div>
                      </div>
-                    <a class="dropdown-item" href="{% url 'edit_profile' %}">My Profile</a>
+                     <a class="dropdown-item" href="{% if user.is_student %}{% url 'student_profile' %}{% elif user.is_teacher %}{% url 'teacher_profile' %}{% else %}{% url 'edit_profile' %}{% endif %}">My Profile</a>
                      <a class="dropdown-item" href="inbox.html">Inbox</a>
                      <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                   </div>

@@ -1,0 +1,62 @@
+{% extends "Home/base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">My Profile</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Profile</li>
+                    </ul>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">
+                        <i class="fas fa-pencil-alt"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <div class="profile-img">
+                                    <img src="{{ user.get_profile_picture_url }}" alt="Profile Picture" class="rounded-circle" width="200">
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h4>{{ user.get_full_name }}</h4>
+                                <p class="text-muted">
+                                    {% if user.is_student %}Student
+                                    {% elif user.is_teacher %}Teacher
+                                    {% elif user.is_admin %}Administrator
+                                    {% endif %}
+                                </p>
+                                
+                                <div class="profile-details">
+                                    <h5>Basic Information</h5>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Email:</strong> {{ user.email }}</li>
+                                        {% if user.is_student and student %}
+                                            <li><strong>Mobile:</strong> {{ student.mobile_number }}</li>
+                                            <li><strong>Class:</strong> {{ student.student_class }}</li>
+                                            <li><strong>Section:</strong> {{ student.section }}</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

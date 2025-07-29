@@ -2,10 +2,9 @@ from django.urls import path
 from .views import (
     index, dashboard, student_dashboard, student_teachers,
     teacher_dashboard, teacher_schedule, create_assignment,
-    grade_submissions, take_attendance, teacher_profile,
-    teacher_list, add_teacher, edit_teacher, admin_dashboard,
+    grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard,
     mark_notification_as_read, clear_all_notification,
-    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView
+    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, 
 )
 
 urlpatterns = [
@@ -24,6 +23,8 @@ urlpatterns = [
     path('teacher/attendance/', take_attendance, name='attendance'),
     path('teacher/profile/', teacher_profile, name='teacher_profile'),
     path('teachers/', teacher_list, name='teacher_list'),
+    path('teacher/profile/view/', teacher_profile_view, name='teacher_profile'),
+    path('teacher/profile/edit/', teacher_profile_edit, name='teacher_profile_edit'),
     path('teachers/add/', add_teacher, name='add_teacher'),
     path('teachers/<int:pk>/edit/', edit_teacher, name='edit_teacher'),
     

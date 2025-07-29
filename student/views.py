@@ -70,7 +70,7 @@ def student_list(request):
 def edit_profile(request):
     if request.method == 'POST':
         try:
-            # Update user fields
+            # Update basic user fields for all users
             request.user.first_name = request.POST.get('first_name')
             request.user.last_name = request.POST.get('last_name')
             request.user.email = request.POST.get('email')
@@ -82,35 +82,37 @@ def edit_profile(request):
             
             request.user.save()
 
+            # Only handle student-specific fields if user is a student
             if request.user.is_student:
                 student, created = Student.objects.get_or_create(
                     user=request.user,
                     defaults={
                         'first_name': request.user.first_name,
                         'last_name': request.user.last_name,
-                        'student_class': 'Class 1',  # Default value
-                        'section': 'A',             # Default value
-                        'date_of_birth': '2000-01-01',  # Required field
-                        'gender': 'Male',           # Required field
+                        'student_class': request.POST.get('student_class', 'Class 1'),
+                        'section': request.POST.get('section', 'A'),
+                        'date_of_birth': '2000-01-01',
+                        'gender': 'Male',
                         'joining_date': timezone.now().date(),
-                        'mobile_number': '',
+                        'mobile_number': request.POST.get('mobile_number', ''),
                         'admission_number': '',
-                        'parent': Parent.objects.create()  # Create minimal parent
+                        'parent': Parent.objects.create()
                     }
                 )
                 
-                # Update student fields
-                student.mobile_number = request.POST.get('mobile_number', '')
-                student.student_class = request.POST.get('student_class', 'Class 1')
-                student.section = request.POST.get('section', 'A')
-                student.save()
+                if not created:
+                    student.mobile_number = request.POST.get('mobile_number', '')
+                    student.student_class = request.POST.get('student_class', 'Class 1')
+                    student.section = request.POST.get('section', 'A')
+                    student.save()
 
             messages.success(request, 'Profile updated successfully!')
-            return redirect('edit_profile')
+            return redirect('profile')  # Redirect to view profile after saving
             
         except Exception as e:
             messages.error(request, f'Error updating profile: {str(e)}')
     
+    # Prepare context
     context = {
         'user': request.user,
         'unread_notification_count': Notification.objects.filter(
@@ -119,7 +121,16 @@ def edit_profile(request):
         ).count()
     }
     
+    # Only add student-specific context if user is a student
     if request.user.is_student:
+        CLASS_CHOICES = ['Class ' + str(i) for i in range(1, 13)]
+        SECTION_CHOICES = ['A', 'B', 'C', 'D']
+        
+        context.update({
+            'class_options': CLASS_CHOICES,
+            'section_options': SECTION_CHOICES,
+        })
+        
         try:
             context['student'] = Student.objects.get(user=request.user)
         except Student.DoesNotExist:
@@ -236,6 +247,24 @@ def edit_student(request, slug):
         'joining_date': student.joining_date.strftime('%Y-%m-%d')
     }
     return render(request, "students/edit-student.html", context)
+
+@login_required
+def view_profile(request):
+    context = {
+        'user': request.user,
+        'unread_notification_count': Notification.objects.filter(
+            user=request.user, 
+            is_read=False
+        ).count()
+    }
+    
+    if request.user.is_student:
+        try:
+            context['student'] = Student.objects.get(user=request.user)
+        except Student.DoesNotExist:
+            pass
+    
+    return render(request, 'profile/view.html', context)
 
 def view_student(request, slug):
     student = get_object_or_404(Student, slug=slug)
