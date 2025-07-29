@@ -39,11 +39,11 @@
                         <p class="mb-1 text-muted">
                             <i class="fas fa-envelope mr-1"></i>{{ relationship.teacher.email }}
                         </p>
-                        {% if relationship.teacher.mobile_number %}
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-phone mr-1"></i>{{ relationship.teacher.mobile_number }}
-                        </p>
-                        {% endif %}
+                        {% if relationship.teacher.phone %}
+<p class="mb-0 text-muted">
+    <i class="fas fa-phone mr-1"></i>{{ relationship.teacher.phone }}
+</p>
+{% endif %}
                     </div>
                 </div>
             </div>
@@ -104,14 +104,14 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {% if relationship.teacher.mobile_number %}
-                                    <a href="tel:{{ relationship.teacher.mobile_number }}">
-                                        {{ relationship.teacher.mobile_number }}
-                                    </a>
-                                    {% else %}
-                                    N/A
-                                    {% endif %}
-                                </td>
+    {% if relationship.teacher.phone %}
+    <a href="tel:{{ relationship.teacher.phone }}">
+        {{ relationship.teacher.phone }}
+    </a>
+    {% else %}
+    N/A
+    {% endif %}
+</td>
                             </tr>
                             {% endfor %}
                         </tbody>

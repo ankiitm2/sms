@@ -25,6 +25,8 @@ class CustomUser(AbstractUser):
     phone = models.CharField(max_length=20, null=True, blank=True)
     department = models.CharField(max_length=100, null=True, blank=True)
     qualification = models.CharField(max_length=100, null=True, blank=True)
+    specialization = models.CharField(max_length=100, null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     joining_date = models.DateField(null=True, blank=True)
 
     profile_picture = models.ImageField(
