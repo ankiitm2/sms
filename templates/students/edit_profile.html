@@ -3,130 +3,198 @@
 
 {% block body %}
 <div class="page-wrapper">
-<div class="content container-fluid">
-<div class="page-header">
-    <div class="row align-items-center">
-        <div class="col">
-            <h3 class="page-title">Edit Profile</h3>
-            <ul class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'student_profile' %}">Profile</a></li>
-                <li class="breadcrumb-item active">Edit</li>
-            </ul>
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">Edit Student Profile</h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'student_profile' %}">Profile</a></li>
+                        <li class="breadcrumb-item active">Edit</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% if messages %}
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>Profile Picture</label>
-                                <div class="avatar-upload">
-                                    <div class="avatar-edit">
-                                        <input type="file" id="profile_picture" name="profile_picture" accept=".png, .jpg, .jpeg">
-                                        <label for="profile_picture"></label>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" class="form-horizontal">
+                            {% csrf_token %}
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Profile Picture</label>
+                                        <div class="avatar-upload">
+                                            <div class="avatar-edit">
+                                                <input type="file" id="profile_picture" name="profile_picture" accept=".png, .jpg, .jpeg">
+                                                <label for="profile_picture"><i class="fas fa-camera"></i></label>
+                                            </div>
+                                            <div class="avatar-preview">
+                                                <div id="imagePreview" style="background-image: url('{{ user.get_profile_picture_url }}');"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="avatar-preview">
-                                        <div id="imagePreview" style="background-image: url('{{ user.get_profile_picture_url }}');"></div>
+                                </div>
+                                
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" name="mobile_number" 
+                                                       value="{% if student.mobile_number %}{{ student.mobile_number }}{% endif %}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label">Date of Birth</label>
+                                                <input type="date" class="form-control" name="date_of_birth" 
+                                                       value="{% if student.date_of_birth %}{{ student.date_of_birth|date:'Y-m-d' }}{% endif %}">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="col-md-8">
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3">Academic Information</h5>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Class <span class="text-danger">*</span></label>
+                                        <select class="form-control" name="student_class" required>
+                                            <option value="">Select Class</option>
+                                            {% for i in "123456789101112" %}
+                                                <option value="Class {{ i }}" {% if student.student_class == 'Class '|add:i %}selected{% endif %}>
+                                                    Class {{ i }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Section <span class="text-danger">*</span></label>
+                                        <select class="form-control" name="section" required>
+                                            <option value="">Select Section</option>
+                                            <option value="A" {% if student.section == 'A' %}selected{% endif %}>A</option>
+                                            <option value="B" {% if student.section == 'B' %}selected{% endif %}>B</option>
+                                            <option value="C" {% if student.section == 'C' %}selected{% endif %}>C</option>
+                                            <option value="D" {% if student.section == 'D' %}selected{% endif %}>D</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-label">Blood Group</label>
+                                        <select class="form-control" name="blood_group">
+                                            <option value="">Select Blood Group</option>
+                                            {% for bg in blood_groups %}
+                                                <option value="{{ bg }}" {% if student.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-4">
+                            
+                            <h5 class="mb-3">Additional Information</h5>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>First Name</label>
-                                        <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                                        <label class="form-label">Address</label>
+                                        <textarea class="form-control" name="address" rows="2">{% if student.address %}{{ student.address }}{% endif %}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Last Name</label>
-                                        <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                                        <label class="form-label">Emergency Contact</label>
+                                        <input type="text" class="form-control" name="emergency_contact" 
+                                               value="{% if student.emergency_contact %}{{ student.emergency_contact }}{% endif %}">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Medical Conditions</label>
+                                        <textarea class="form-control" name="medical_conditions" rows="2">{% if student.medical_conditions %}{{ student.medical_conditions }}{% endif %}</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Hobbies & Interests</label>
+                                        <textarea class="form-control" name="hobbies" rows="2">{% if student.hobbies %}{{ student.hobbies }}{% endif %}</textarea>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
+                                <label class="form-label">Achievements</label>
+                                <textarea class="form-control" name="achievements" rows="2">{% if student.achievements %}{{ student.achievements }}{% endif %}</textarea>
                             </div>
-                           
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Mobile Number</label>
-                                        <input type="text" class="form-control" name="mobile_number" 
-                                               value="{% if student.mobile_number %}{{ student.mobile_number }}{% endif %}" required>
-                                    </div>
-                                </div>
+                            
+                            <div class="text-end mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a href="{% url 'student_profile' %}" class="btn btn-light">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
                             </div>
-                        </div>
+                        </form>
                     </div>
-                    <!-- Ensure the class/section fields are properly included -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="form-group">
-            <label>Class</label>
-            <select class="form-control" name="student_class" required>
-                <option value="">Select Class</option>
-                {% for i in "123456789101112" %}
-                    <option value="Class {{ i }}" 
-                        {% if student.student_class == 'Class '|add:i %}selected{% endif %}>
-                        Class {{ i }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="form-group">
-            <label>Section</label>
-            <select class="form-control" name="section" required>
-                <option value="">Select Section</option>
-                <option value="A" {% if student.section == 'A' %}selected{% endif %}>A</option>
-                <option value="B" {% if student.section == 'B' %}selected{% endif %}>B</option>
-                <option value="C" {% if student.section == 'C' %}selected{% endif %}>C</option>
-                <option value="D" {% if student.section == 'D' %}selected{% endif %}>D</option>
-            </select>
-        </div>
-    </div>
-</div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <a href="{% url 'student_profile' %}" class="btn btn-link">Cancel</a>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
-</div>
 </div>
 
 <style>
 .avatar-upload {
     position: relative;
-    max-width: 205px;
+    max-width: 200px;
+    margin: 0 auto;
 }
 .avatar-upload .avatar-edit {
     position: absolute;
@@ -139,27 +207,29 @@
 }
 .avatar-upload .avatar-edit label {
     display: inline-block;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     margin-bottom: 0;
     border-radius: 100%;
-    background: #FFFFFF;
-    border: 1px solid transparent;
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+    background: #3b7ddd;
+    border: 2px solid #fff;
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     font-weight: normal;
     transition: all 0.2s ease-in-out;
+    text-align: center;
+    line-height: 36px;
+    color: #fff;
 }
 .avatar-upload .avatar-edit label:hover {
-    background: #f1f1f1;
-    border-color: #d6d6d6;
+    background: #2e67c2;
 }
 .avatar-upload .avatar-preview {
-    width: 192px;
-    height: 192px;
+    width: 180px;
+    height: 180px;
     position: relative;
     border-radius: 100%;
-    border: 6px solid #F8F8F8;
+    border: 5px solid #f5f5f5;
     box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
 }
 .avatar-upload .avatar-preview > div {
@@ -170,17 +240,60 @@
     background-repeat: no-repeat;
     background-position: center;
 }
+.form-label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+.card {
+    border: none;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    border-radius: 10px;
+}
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+    border-radius: 10px 10px 0 0 !important;
+}
+.card-title {
+    margin-bottom: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.btn-primary {
+    background-color: #3b7ddd;
+    border-color: #3b7ddd;
+    padding: 8px 20px;
+}
+.btn-light {
+    padding: 8px 20px;
+}
+hr {
+    border-top: 1px solid #eee;
+}
+.alert {
+    border-radius: 6px;
+}
 </style>
 
 <script>
-document.getElementById('profile_picture').addEventListener('change', function(event) {
-    const [file] = event.target.files;
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('imagePreview').style.backgroundImage = `url(${e.target.result})`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    document.getElementById('profile_picture').addEventListener('change', function(event) {
+        const [file] = event.target.files;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imagePreview').style.backgroundImage = `url(${e.target.result})`;
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
+    });
+    
+    // Set default image if none exists
+    const preview = document.getElementById('imagePreview');
+    if (!preview.style.backgroundImage || preview.style.backgroundImage === 'none') {
+        preview.style.backgroundImage = 'url({% static "img/profiles/avatar-01.jpg" %})';
     }
 });
 </script>

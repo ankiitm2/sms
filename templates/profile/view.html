@@ -1,62 +1,182 @@
 {% extends "Home/base.html" %}
 {% load static %}
 
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
 {% block body %}
 <div class="page-wrapper">
-    <div class="content container-fluid">
-        <div class="page-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h3 class="page-title">My Profile</h3>
-                    <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Profile</li>
-                    </ul>
-                </div>
-                <div class="col-auto">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-primary">
-                        <i class="fas fa-pencil-alt"></i> Edit Profile
-                    </a>
-                </div>
-            </div>
+  <div class="content container-fluid">
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">My Profile</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Profile</li>
+          </ul>
         </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <div class="profile-img">
-                                    <img src="{{ user.get_profile_picture_url }}" alt="Profile Picture" class="rounded-circle" width="200">
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <h4>{{ user.get_full_name }}</h4>
-                                <p class="text-muted">
-                                    {% if user.is_student %}Student
-                                    {% elif user.is_teacher %}Teacher
-                                    {% elif user.is_admin %}Administrator
-                                    {% endif %}
-                                </p>
-                                
-                                <div class="profile-details">
-                                    <h5>Basic Information</h5>
-                                    <ul class="list-unstyled">
-                                        <li><strong>Email:</strong> {{ user.email }}</li>
-                                        {% if user.is_student and student %}
-                                            <li><strong>Mobile:</strong> {{ student.mobile_number }}</li>
-                                            <li><strong>Class:</strong> {{ student.student_class }}</li>
-                                            <li><strong>Section:</strong> {{ student.section }}</li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="col-auto">
+          <a href="{% url 'edit_student_profile' %}" class="btn gradient-btn">
+            <i class="fas fa-pen me-1"></i> Edit Profile
+          </a>
         </div>
+      </div>
     </div>
+
+    <div class="row">
+      <!-- Profile card -->
+      <div class="col-md-4">
+        <div class="card profile-card text-center">
+          <div class="card-body">
+            <div class="avatar-wrapper">
+              <img src="{{ user.get_profile_picture_url }}" 
+                   onerror="this.src='{% static 'img/profiles/avatar-02.jpg' %}'"
+                   class="profile-pic"
+                   alt="{{ user.get_full_name }}">
+            </div>
+            <h4 class="mt-3">{{ user.get_full_name }}</h4>
+            <p class="text-muted mb-1">{{ user.email }}</p>
+            {% if student and student.mobile_number %}
+            <p class="text-muted"><i class="fas fa-phone-alt me-1"></i> {{ student.mobile_number }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile details -->
+      <div class="col-md-8">
+        <div class="card card-section">
+          <div class="card-body">
+            <h5 class="section-title">Personal Information</h5>
+            <div class="row">
+              <div class="col-md-6"><p><strong>First Name:</strong> {{ user.first_name }}</p></div>
+              <div class="col-md-6"><p><strong>Last Name:</strong> {{ user.last_name }}</p></div>
+              <div class="col-md-6"><p><strong>Email:</strong> {{ user.email }}</p></div>
+              <div class="col-md-6"><p><strong>Username:</strong> {{ user.username }}</p></div>
+            </div>
+
+            {% if student %}
+            <hr>
+            <h5 class="section-title">Student Information</h5>
+            <div class="row">
+              <div class="col-md-6"><p><strong>Student ID:</strong> {{ student.student_id }}</p></div>
+              <div class="col-md-6"><p><strong>Class:</strong> {{ student.student_class }}</p></div>
+              <div class="col-md-6"><p><strong>Section:</strong> {{ student.section }}</p></div>
+              <div class="col-md-6"><p><strong>Admission Number:</strong> {{ student.admission_number }}</p></div>
+            </div>
+
+            <hr>
+            <h5 class="section-title">Additional Information</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Date of Birth:</strong> {{ student.date_of_birth|date:"F j, Y"|default:"Not specified" }}</p>
+                <p><strong>Blood Group:</strong> {{ student.blood_group|default:"Not specified" }}</p>
+                <p><strong>Emergency Contact:</strong> {{ student.emergency_contact|default:"Not specified" }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Address:</strong> {{ student.address|linebreaks|default:"Not specified" }}</p>
+              </div>
+            </div>
+
+            {% if student.medical_conditions %}
+            <div class="mt-3">
+              <h6 class="sub-title">Medical Conditions</h6>
+              <p>{{ student.medical_conditions|linebreaks }}</p>
+            </div>
+            {% endif %}
+
+            {% if student.hobbies %}
+            <div class="mt-3">
+              <h6 class="sub-title">Hobbies & Interests</h6>
+              <p>{{ student.hobbies|linebreaks }}</p>
+            </div>
+            {% endif %}
+
+            {% if student.achievements %}
+            <div class="mt-3">
+              <h6 class="sub-title">Achievements</h6>
+              <p>{{ student.achievements|linebreaks }}</p>
+            </div>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+    .page-wrapper {
+  animation: fadeIn 0.7s ease-in-out;
+}
+
+.card {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.07);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: scale(1.01);
+}
+
+.profile-card .avatar-wrapper {
+  display: flex;
+  justify-content: center;
+}
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 4px solid #f0f0f0;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+.profile-pic:hover {
+  transform: scale(1.05);
+}
+
+.section-title {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+  border-left: 4px solid #007bff;
+  padding-left: 12px;
+  color: #333;
+}
+
+.sub-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+.gradient-btn {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+  border: none;
+  color: #fff !important;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: 0.3s ease-in-out;
+}
+.gradient-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+  </style>
 </div>
 {% endblock %}
