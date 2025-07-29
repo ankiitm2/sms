@@ -269,9 +269,27 @@ def teacher_profile(request):
     if not request.user.is_teacher:
         return HttpResponseForbidden()
     
+    # Calculate years of service
+    years_of_service = 0
+    if request.user.joining_date:
+        today = timezone.now().date()
+        years_of_service = today.year - request.user.joining_date.year
+        if today.month < request.user.joining_date.month or \
+           (today.month == request.user.joining_date.month and today.day < request.user.joining_date.day):
+            years_of_service -= 1
+    
+    # Get teacher's subjects and classes (example implementation)
+    subjects = ['Math', 'Science']  # Replace with actual data from your models
+    classes = ['Class 10A', 'Class 11B']  # Replace with actual data
+    total_students = 45  # Replace with actual count
+    
     context = {
         'user': request.user,
         'teacher': request.user,
+        'years_of_service': years_of_service,
+        'subjects': subjects,
+        'classes': classes,
+        'total_students': total_students,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False
@@ -286,24 +304,28 @@ def teacher_profile_edit(request):
     
     if request.method == 'POST':
         try:
-            # Update basic user fields
+            # Update basic fields
             request.user.first_name = request.POST.get('first_name')
             request.user.last_name = request.POST.get('last_name')
             request.user.email = request.POST.get('email')
             request.user.phone = request.POST.get('phone')
             request.user.department = request.POST.get('department')
             request.user.qualification = request.POST.get('qualification')
+            request.user.specialization = request.POST.get('specialization')
+            request.user.bio = request.POST.get('bio')
             
-            if 'joining_date' in request.POST:
-                request.user.joining_date = request.POST.get('joining_date')
+            # Handle dates
+            joining_date = request.POST.get('joining_date')
+            if joining_date:
+                request.user.joining_date = joining_date
             
+            # Handle profile picture
             if 'profile_picture' in request.FILES:
                 if request.user.profile_picture:
                     request.user.profile_picture.delete()
                 request.user.profile_picture = request.FILES['profile_picture']
             
             request.user.save()
-            
             messages.success(request, 'Profile updated successfully!')
             return redirect('teacher_profile')
             

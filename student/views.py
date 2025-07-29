@@ -143,16 +143,11 @@ def edit_student_profile(request):
     if not request.user.is_student:
         return HttpResponseForbidden()
 
-    # Get or create student profile
     student, created = Student.objects.get_or_create(user=request.user)
     
-    # Define class and section options
-    CLASS_CHOICES = [
-        'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
-        'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
-        'Class 11', 'Class 12'
-    ]
+    CLASS_CHOICES = ['Class ' + str(i) for i in range(1, 13)]
     SECTION_CHOICES = ['A', 'B', 'C', 'D']
+    BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 
     if request.method == 'POST':
         try:
@@ -161,7 +156,6 @@ def edit_student_profile(request):
             request.user.last_name = request.POST.get('last_name')
             request.user.email = request.POST.get('email')
             
-            # Handle profile picture upload
             if 'profile_picture' in request.FILES:
                 if request.user.profile_picture:
                     request.user.profile_picture.delete()
@@ -170,9 +164,16 @@ def edit_student_profile(request):
             request.user.save()
             
             # Update student fields
-            student.mobile_number = request.POST.get('mobile_number')
-            student.student_class = request.POST.get('student_class')
-            student.section = request.POST.get('section')
+            student.mobile_number = request.POST.get('mobile_number', '')
+            student.student_class = request.POST.get('student_class', 'Class 1')
+            student.section = request.POST.get('section', 'A')
+            student.date_of_birth = request.POST.get('date_of_birth') or '2000-01-01'
+            student.blood_group = request.POST.get('blood_group', '')
+            student.address = request.POST.get('address', '')
+            student.emergency_contact = request.POST.get('emergency_contact', '')
+            student.medical_conditions = request.POST.get('medical_conditions', '')
+            student.hobbies = request.POST.get('hobbies', '')
+            student.achievements = request.POST.get('achievements', '')
             student.save()
             
             messages.success(request, 'Profile updated successfully!')
@@ -186,6 +187,7 @@ def edit_student_profile(request):
         'student': student,
         'class_options': CLASS_CHOICES,
         'section_options': SECTION_CHOICES,
+        'blood_groups': BLOOD_GROUPS,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False
