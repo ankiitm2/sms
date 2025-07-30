@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.text import slugify
 from home_auth.models import CustomUser
 from django.utils import timezone
+from django.conf import settings
 
 # Create your models here.
 class Parent(models.Model):
@@ -40,11 +41,11 @@ class Student(models.Model):
     parent = models.OneToOneField(Parent, on_delete=models.CASCADE)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     user = models.OneToOneField(
-        CustomUser, 
+        settings.AUTH_USER_MODEL,  # Changed from CustomUser to settings.AUTH_USER_MODEL
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name='student_profile'
+        related_name='student_profile' 
     )
 
     def save(self, *args, **kwargs):

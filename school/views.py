@@ -27,6 +27,75 @@ def index(request):
         return redirect('dashboard')
     return redirect('login') 
 
+
+@login_required
+def all_notifications(request):
+    notifications = request.user.notifications.all().order_by('-created_at')
+    
+    # Counts for filters
+    unread_count = request.user.notifications.filter(is_read=False).count()
+    read_count = request.user.notifications.filter(is_read=True).count()
+    exam_count = request.user.notifications.filter(notification_type='exam').count()
+    assignment_count = request.user.notifications.filter(notification_type='assignment').count()
+    announcement_count = request.user.notifications.filter(notification_type='announcement').count()
+    message_count = request.user.notifications.filter(notification_type='message').count()
+    
+    context = {
+        'notifications': notifications,
+        'unread_count': unread_count,
+        'read_count': read_count,
+        'exam_count': exam_count,
+        'assignment_count': assignment_count,
+        'announcement_count': announcement_count,
+        'message_count': message_count,
+    }
+    return render(request, 'notifications/all.html', context)
+
+@login_required
+def get_unread_notifications(request):
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')[:5]
+        data = {
+            'notifications': [
+                {
+                    'id': str(notif.id),
+                    'title': notif.title,
+                    'message': notif.message,
+                    'time_since': notif.time_since,
+                    'is_read': notif.is_read,
+                    'url': notif.related_url or '#',
+                } for notif in notifications
+            ],
+            'unread_count': request.user.notifications.filter(is_read=False).count()
+        }
+        return JsonResponse(data)
+    return JsonResponse({}, status=400)
+
+@login_required
+def mark_notification_as_read(request, notification_id=None):
+    if request.method == 'POST':
+        if notification_id:
+            # Mark single notification as read
+            request.user.notifications.filter(id=notification_id).update(is_read=True)
+        else:
+            # Mark all notifications as read
+            request.user.notifications.filter(is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def delete_notification(request, notification_id):
+    if request.method == 'POST':
+        request.user.notifications.filter(id=notification_id).delete()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
+
+def unread_notification_count(request):
+    if request.user.is_authenticated:
+        count = request.user.notifications.filter(is_read=False).count()
+        return JsonResponse({'count': count})
+    return JsonResponse({'count': 0})
+
 @login_required
 def dashboard(request):
     if request.user.is_admin:
@@ -34,14 +103,14 @@ def dashboard(request):
     elif request.user.is_teacher:
         return redirect('teacher_dashboard')
     elif request.user.is_student:
-        # Prepare context with user's name
-        unread_notification = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
-        unread_notification_count = unread_notification.count()
+        unread_notifications = request.user.notifications.filter(
+        is_read=False
+    ).order_by('-created_at')[:5]
+        
         context = {
-            'unread_notification': unread_notification,
-            'unread_notification_count': unread_notification_count,
-            'user': request.user  # Pass the user object to template
-        }
+        'unread_notifications': unread_notifications,
+        'unread_count': unread_notifications.count()
+    }
         return render(request, "students/student-dashboard.html", context)
     else:
         return redirect('login')

@@ -36,6 +36,10 @@ class CustomUser(AbstractUser):
         default=None
     )
 
+    @property
+    def unread_notification_count(self):
+        return self.notifications.filter(is_read=False).count()
+
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}"
     

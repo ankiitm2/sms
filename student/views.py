@@ -58,11 +58,18 @@ def add_student(request):
 
 def student_list(request):
     student_list = Student.objects.select_related('parent').all()
-    unread_notification = request.user.notification_set.filter(is_read=False)
+    
+    # Handle notifications for both students and teachers
+    try:
+        unread_notifications = Notification.objects.filter(user=request.user, is_read=False)
+    except:
+        unread_notifications = []
+    
     context = {
         'student_list': student_list,
-        'unread_notification': unread_notification,
-        'default_avatar': 'img/profiles/avatar-02.jpg'  # Pass default image path
+        'unread_notifications': unread_notifications,
+        'unread_notification_count': unread_notifications.count(),
+        'default_avatar': 'img/profiles/avatar-02.jpg'
     }
     return render(request, "students/students.html", context)
 

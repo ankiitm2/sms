@@ -3,7 +3,7 @@ from .views import (
     index, dashboard, student_dashboard, student_teachers,
     teacher_dashboard, teacher_schedule, create_assignment,
     grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard,
-    mark_notification_as_read, clear_all_notification,
+    mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count,
     TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, 
 )
 
@@ -44,6 +44,10 @@ urlpatterns = [
     path('admin/dashboard/', admin_dashboard, name='admin_dashboard'),
     
     # Notification URLs
-    path('notification/mark-as-read/', mark_notification_as_read, name='mark_notification_as_read'),
-    path('notification/clear-all/', clear_all_notification, name="clear_all_notification"),
+    path('notifications/', all_notifications, name='all_notifications'),
+    path('notifications/unread-count/', unread_notification_count, name='unread_notification_count'),
+    path('notifications/unread/', get_unread_notifications, name='get_unread_notifications'),
+    path('notifications/mark-as-read/', mark_notification_as_read, name='mark_notification_as_read'),
+    path('notifications/mark-as-read/<uuid:notification_id>/', mark_notification_as_read, name='mark_single_notification_as_read'),
+    path('notifications/delete/<uuid:notification_id>/', delete_notification, name='delete_notification'),
 ]
