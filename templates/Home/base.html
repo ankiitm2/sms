@@ -130,18 +130,14 @@
                      <li class="{% if current_url_name == 'student_list' %}active{% endif %}">
                         <a href="{% url 'student_list' %}"><i class="fas fa-users"></i> <span>Classmates</span></a>
                      </li>
-                     <!-- <li class="{% if 'timetable' in current_path %}active{% endif %}">
-                        <a href="{% url 'timetable' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
-                     </li> -->
-                     <li class="{% if 'exam_list' in current_path %}active{% endif %}">
-                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
-                     </li>
                      {% elif user.is_teacher %}
                      <!-- Teacher specific menu items -->
                      {% elif user.is_admin %}
                      <!-- Admin specific menu items -->
                      {% endif %}
-                     
+                     <li class="{% if current_url_name == 'exam_list' or current_url_name == 'dashboard' %}active{% endif %}">
+                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exams</span></a>
+                     </li>
                      {% if user.is_teacher %}
                      <li class="submenu {% if 'student_list' in current_url_name or 'add_student' in current_url_name or 'edit_student' in current_url_name or 'view_student' in current_url_name %}active{% endif %}">
                         <a href="#"><i class="fas fa-user-graduate"></i> <span> Students</span> <span class="menu-arrow"></span></a>
@@ -184,7 +180,7 @@
                            <li><a href="edit-subject.html">Subject Edit</a></li>
                         </ul>
                      </li>
-                     <li>
+                     <li class="{% if current_url_name == 'time_table' or current_url_name == 'dashboard' %}active{% endif %}">
                        <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
                      </li>
                      <li class="menu-title">
@@ -206,9 +202,6 @@
                      </li>
                      <li>
                         <a href="fees.html"><i class="fas fa-comment-dollar"></i> <span>Fees</span></a>
-                     </li>
-                     <li>
-                        <a href="{% url 'exam_list' %}"><i class="fas fa-clipboard-list"></i> <span>Exam list</span></a>
                      </li>
                      <li>
                         <a href="event.html"><i class="fas fa-calendar-day"></i> <span>Events</span></a>

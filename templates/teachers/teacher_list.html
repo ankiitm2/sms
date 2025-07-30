@@ -4,70 +4,131 @@
 {% block body %}
 <div class="page-wrapper">
     <div class="content container-fluid">
-        <div class="page-header">
+        <!-- Animated Header with Breadcrumb -->
+        <div class="page-header animate__animated animate__fadeIn">
             <div class="row align-items-center">
                 <div class="col">
                     <h3 class="page-title">Teachers List</h3>
                     <ul class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li class="breadcrumb-item active">Teachers</li>
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}" class="hover-grow">Dashboard</a></li>
+                        <li class="breadcrumb-item active text-primary">Teachers</li>
                     </ul>
                 </div>
                 {% if user.is_admin %}
                 <div class="col-auto text-right float-right ml-auto">
-                    <a href="{% url 'add_teacher' %}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Teacher
+                    <a href="{% url 'add_teacher' %}" class="btn btn-primary hover-scale">
+                        <i class="fas fa-plus mr-1"></i> Add Teacher
                     </a>
                 </div>
                 {% endif %}
             </div>
         </div>
         
-        <div class="row">
+        <!-- Teacher Cards with Animation -->
+        <div class="row animate__animated animate__fadeInUp">
             <div class="col-sm-12">
-                <div class="card card-table">
+                <div class="card card-table hover-glow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chalkboard-teacher mr-2"></i>Teaching Staff
+                            <span class="badge badge-light ml-2">{{ teachers.count }}</span>
+                        </h5>
+                    </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover table-center mb-0">
-                                <thead>
+                                <thead class="thead-light">
                                     <tr>
-                                        <th>Photo</th>
+                                        <th class="text-center">Photo</th>
                                         <th>Name</th>
+                                        <th>Department</th>
                                         <th>Email</th>
+                                        <th>Subjects</th>
                                         <th>Join Date</th>
                                         {% if user.is_admin %}
-                                        <th class="text-right">Action</th>
+                                        <th class="text-right">Actions</th>
                                         {% endif %}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for teacher in teachers %}
-                                    <tr>
-                                        <td>
-                                            <div class="avatar avatar-sm">
+                                    <tr class="hover-float">
+                                        <td class="text-center">
+                                            <div class="avatar avatar-md hover-scale">
                                                 {% with default_avatar='img/profiles/avatar-02.jpg' %}
-                                                <img class="avatar-img rounded-circle" 
+                                                <img class="avatar-img rounded-circle shadow-sm" 
                                                      src="{{ teacher.get_profile_picture }}"
-                                                     alt="User Image"
+                                                     alt="{{ teacher.get_full_name }}"
                                                      onerror="this.onerror=null;this.src='{% static default_avatar %}'">
                                                 {% endwith %}
                                             </div>
                                         </td>
-                                        <td>{{ teacher.get_full_name }}</td>
-                                        <td>{{ teacher.email }}</td>
+                                        <td>
+                                            <h6 class="mb-0">{{ teacher.get_full_name }}</h6>
+                                            <small class="text-muted">{{ teacher.qualification|default:"Qualification not specified" }}</small>
+                                        </td>
+                                        <td>{{ teacher.department|default:"Not assigned" }}</td>
+                                        <td><a href="mailto:{{ teacher.email }}" class="text-primary">{{ teacher.email }}</a></td>
+                                        <td>
+                                            {% if teacher.subjects_taught %}
+                                                {{ teacher.subjects_taught|join:", " }}
+                                            {% else %}
+                                                Not specified
+                                            {% endif %}
+                                        </td>
                                         <td>{{ teacher.date_joined|date:"d M Y" }}</td>
                                         {% if user.is_admin %}
                                         <td class="text-right">
-                                            <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-sm bg-success-light">
-                                                <i class="fas fa-pen"></i> Edit
-                                            </a>
+                                            <div class="actions">
+                                                <a href="{% url 'edit_teacher' teacher.id %}" class="btn btn-sm bg-success-light mr-2 hover-grow" 
+                                                   data-toggle="tooltip" title="Edit">
+                                                    <i class="fas fa-pen"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm bg-danger-light hover-grow" 
+                                                   data-toggle="modal" data-target="#deleteTeacherModal{{ teacher.id }}"
+                                                   data-toggle="tooltip" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                         {% endif %}
                                     </tr>
+
+                                    <!-- Delete Confirmation Modal for each teacher -->
+                                    <div class="modal fade" id="deleteTeacherModal{{ teacher.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirm Deletion</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete <strong>{{ teacher.get_full_name }}</strong>? This action cannot be undone.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary hover-grow" data-dismiss="modal">Cancel</button>
+                                                 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="{% if user.is_admin %}5{% else %}4{% endif %}" class="text-center">
-                                            No teachers found
+                                        <td colspan="{% if user.is_admin %}7{% else %}6{% endif %}" class="text-center py-4">
+                                            <div class="empty-state">
+                                                <div class="empty-state-icon">
+                                                    <i class="fas fa-chalkboard-teacher"></i>
+                                                </div>
+                                                <h4>No Teachers Found</h4>
+                                                <p class="text-muted">There are currently no teachers registered in the system.</p>
+                                                {% if user.is_admin %}
+                                                <a href="{% url 'add_teacher' %}" class="btn btn-primary hover-scale mt-3">
+                                                    <i class="fas fa-plus mr-1"></i> Add First Teacher
+                                                </a>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -80,4 +141,117 @@
         </div>
     </div>
 </div>
+
+<!-- Add Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+    /* Animation Classes */
+    .hover-scale {
+        transition: transform 0.3s ease;
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+    
+    .hover-glow {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .hover-glow:hover {
+        box-shadow: 0 5px 20px rgba(78, 115, 223, 0.2);
+    }
+    
+    .hover-float {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-float:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .hover-grow {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-grow:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Empty State Styling */
+    .empty-state {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .empty-state-icon {
+        font-size: 48px;
+        color: #4e73df;
+        margin-bottom: 15px;
+    }
+    
+    /* Table Improvements */
+    .table thead th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .table tbody tr {
+        transition: all 0.3s ease;
+    }
+    
+    /* Avatar Styling */
+    .avatar-img {
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .avatar-img:hover {
+        border-color: #4e73df;
+    }
+    
+    /* Card Header Styling */
+    .card-header {
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 767px) {
+        .page-header .col-auto {
+            margin-top: 15px;
+        }
+        
+        .table-responsive {
+            border: none;
+        }
+    }
+</style>
+
+<script>
+    // Initialize tooltips
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // Add animation to table rows
+        $('tbody tr').each(function(i) {
+            $(this).delay(i * 100).queue(function() {
+                $(this).addClass('animate__animated animate__fadeIn');
+            });
+        });
+        
+        // Add hover effect to avatar images
+        $('.avatar-img').hover(
+            function() {
+                $(this).css('transform', 'rotate(5deg)');
+            },
+            function() {
+                $(this).css('transform', 'rotate(0)');
+            }
+        );
+    });
+</script>
+
 {% endblock %}
