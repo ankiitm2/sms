@@ -37,57 +37,47 @@
             <i class="fas fa-bars"></i>
             </a>
             <ul class="nav user-menu">
-               <li class="nav-item dropdown noti-dropdown">
-               <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
-                  <i class="far fa-bell"></i> 
-                  {% if unread_notification_count > 0 %}
-                  <span class="badge badge-pill badge-danger">{{ unread_notification_count }}</span>
-                  {% endif %}
-               </a>
-                
-            <div class="dropdown-menu notifications">
-               <div class="topnav-dropdown-header">
-                  <span class="notification-title">Notifications</span>
-                  <a href="javascript:void(0)" class="clear-noti"> Clear All </a>
-               </div>
-               <div class="noti-content">
-                  <ul class="notification-list">
-            {% for notification in unread_notification %}
-            <li class="notification-message {% if forloop.first %}new-notification{% endif %}">
-                <a href="#">
-                    <div class="media">
-                        <span class="avatar avatar-sm">
-                          <img class="avatar-img rounded-circle" alt="User Image" 
-                           src="{{ notification.user|user_avatar:'small' }}">
-                        </span>
-                        <div class="media-body">
-                            <p class="noti-details">
-                                <span class="noti-title">{{ notification.message }}</span>
-                            </p>
-                            <p class="noti-time">
-                                <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
-                                {% if forloop.first %}<span class="badge badge-primary ml-2">New</span>{% endif %}
-                            </p>
-                        </div>
-                        </div>
-                     </a>
-                  </li>
-                  {% empty %}
-                  <li class="notification-message">
-                     <div class="media">
-                        <div class="media-body w-full text-center py-4">
-                              <p class="noti-details">No new notifications</p>
-                        </div>
-                     </div>
-                        </li>
-                        {% endfor %}
-                  </ul>
-               </div>
-               <div class="topnav-dropdown-footer">
-                  <a href="#">View all Notifications</a>
-               </div>
-            </div>
-               </li>
+                 <!-- Notification Dropdown in Header -->
+<li class="nav-item dropdown no-arrow mx-1">
+    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
+       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-bell fa-fw"></i>
+        <!-- Counter - Alerts -->
+        <span class="badge badge-danger badge-counter" id="notification-counter">
+            {{ unread_count }}
+        </span>
+    </a>
+    <!-- Dropdown - Alerts -->
+    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+         aria-labelledby="alertsDropdown">
+        <h6 class="dropdown-header">
+            Notifications Center
+        </h6>
+        <div id="notification-dropdown-items">
+            {% for notification in unread_notifications %}
+            <a class="dropdown-item d-flex align-items-center notification-dropdown-item" 
+               href="{{ notification.related_url|default:'#' }}" 
+               data-notification-id="{{ notification.id }}">
+                <div class="mr-3">
+                    <div class="icon-circle bg-info p-2">
+                        <i class="fas fa-bell text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="small text-gray-500">{{ notification.created_at|date:"F j, Y, g:i a" }}</div>
+                    <span class="font-weight-bold">{{ notification.title }}</span>
+                    <div class="small">{{ notification.message|truncatechars:50 }}</div>
+                </div>
+            </a>
+            {% empty %}
+            <a class="dropdown-item text-center small text-gray-500" href="#">No Unread Notifications</a>
+            {% endfor %}
+        </div>
+        <a class="dropdown-item text-center small text-gray-500" href="{% url 'all_notifications' %}">
+            Show All Notifications
+        </a>
+    </div>
+</li>
                <li class="nav-item dropdown has-arrow">
                   <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                   <span class="user-img">
@@ -309,14 +299,13 @@
       <script src="{%static 'js/script.js' %}"></script>
     
       <script type="text/javascript">
-
-const activeSubmenus = document.querySelectorAll('.submenu.active');
-    activeSubmenus.forEach(submenu => {
-        const ul = submenu.querySelector('ul');
-        if (ul) {
-            ul.style.display = 'block';
-        }
-    });
+      const activeSubmenus = document.querySelectorAll('.submenu.active');
+         activeSubmenus.forEach(submenu => {
+            const ul = submenu.querySelector('ul');
+            if (ul) {
+                  ul.style.display = 'block';
+            }
+         });
     
     document.querySelectorAll('.submenu > a').forEach(link => {
         link.addEventListener('click', function(e) {
@@ -333,40 +322,7 @@ const activeSubmenus = document.querySelectorAll('.submenu.active');
             }
         });
     });
-
-          document.addEventListener('DOMContentLoaded', function() {
-    // Clear all notifications
-    const clearAllBtn = document.querySelector('.clear-noti');
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            fetch('/notification/clear-all/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    document.querySelector('.notification-list').innerHTML = 
-                        '<li class="notification-message"><div class="media"><div class="media-body w-full text-center py-4"><p class="noti-details">No new notifications</p></div></div></li>';
-                    
-                    // Update badge count
-                    const badge = document.querySelector('.noti-dropdown .badge');
-                    if (badge) {
-                        badge.textContent = data.count;
-                        if (data.count == 0) {
-                            badge.remove();
-                        }
-                    }
-                }
-            });
-        });
-    }
-});
+      
          document.addEventListener('DOMContentLoaded', function() {
             // Set up error handlers for all avatar images
             document.querySelectorAll('.avatar-img, .user-img img').forEach(img => {
@@ -380,7 +336,152 @@ const activeSubmenus = document.querySelectorAll('.submenu.active');
             });
          });
       </script>
-     
+      <script>
+$(document).ready(function() {
+    // Function to update notification dropdown
+    function updateNotifications() {
+        $.ajax({
+            url: "{% url 'get_unread_notifications' %}",
+            method: 'GET',
+            success: function(data) {
+                // Update counter
+                $('#notification-counter').text(data.unread_count);
+                
+                // Update dropdown items
+                if (data.notifications.length > 0) {
+                    let itemsHtml = '';
+                    data.notifications.forEach(function(notif) {
+                        itemsHtml += `
+                            <a class="dropdown-item d-flex align-items-center notification-dropdown-item" 
+                               href="${notif.url}" 
+                               data-notification-id="${notif.id}">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-primary">
+                                        <i class="fas fa-bell text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">${notif.time_since}</div>
+                                    <span class="font-weight-bold">${notif.title}</span>
+                                    <div class="small">${notif.message.substring(0, 50)}${notif.message.length > 50 ? '...' : ''}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    $('#notification-dropdown-items').html(itemsHtml);
+                } else {
+                    $('#notification-dropdown-items').html(`
+                        <a class="dropdown-item text-center small text-gray-500" href="#">
+                            No Unread Notifications
+                        </a>
+                    `);
+                }
+            }
+        });
+    }
+    
+    // Mark as read when clicking on notification
+    $(document).on('click', '.notification-dropdown-item', function(e) {
+        const notificationId = $(this).data('notification-id');
+        if (notificationId) {
+            $.ajax({
+                url: `/notifications/mark-as-read/${notificationId}/`,
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            });
+        }
+    });
+    
+    // Poll for new notifications every 30 seconds
+    setInterval(updateNotifications, 30000);
+    
+    // Also update when dropdown is opened
+    $('#alertsDropdown').on('show.bs.dropdown', function() {
+        updateNotifications();
+    });
+});
+</script>
+     <style>
+    /* Notification animations */
+    .pulse {
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .notification-message {
+        animation: fadeInUp 0.3s ease forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .new-notification {
+        background-color: rgba(78, 115, 223, 0.05);
+    }
+    
+    .noti-content {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .notification-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+</style>
+<style>
+   /* Add to your main CSS file */
+@keyframes bell-ring {
+    0% { transform: rotate(0); }
+    10% { transform: rotate(15deg); }
+    20% { transform: rotate(-15deg); }
+    30% { transform: rotate(15deg); }
+    40% { transform: rotate(-15deg); }
+    50% { transform: rotate(10deg); }
+    60% { transform: rotate(-10deg); }
+    70% { transform: rotate(5deg); }
+    80% { transform: rotate(-5deg); }
+    90% { transform: rotate(2deg); }
+    100% { transform: rotate(0); }
+}
+
+.new-notification .fa-bell {
+    animation: bell-ring 1s ease;
+}
+
+.notification-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Add this to highlight new notifications */
+.highlight-new {
+    background-color: rgba(78, 115, 223, 0.1);
+    transition: background-color 3s ease;
+}
+</style>
   </body>
   </html>
   {% endwith %}

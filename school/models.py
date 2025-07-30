@@ -4,21 +4,61 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import uuid
 from home_auth.admin import CustomUser
+from django.urls import reverse
+from django.utils import timezone
 
 class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('exam', 'Exam Notification'),
+        ('assignment', 'Assignment Notification'),
+        ('general', 'General Notification'),
+    )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    message = models.CharField(max_length=255)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=100, blank=True)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='general')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    related_url = models.URLField(blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+    
     def __str__(self):
-        return self.message
-
+        return f"{self.get_notification_type_display()} for {self.user.email}"
+    
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = self.get_notification_type_display()
+        super().save(*args, **kwargs)
+    
+    @property
+    def time_since(self):
+        now = timezone.now()
+        diff = now - self.created_at
+        
+        if diff.days > 365:
+            years = diff.days // 365
+            return f"{years} year{'s' if years > 1 else ''} ago"
+        if diff.days > 30:
+            months = diff.days // 30
+            return f"{months} month{'s' if months > 1 else ''} ago"
+        if diff.days > 0:
+            return f"{diff.days} day{'s' if diff.days > 1 else ''} ago"
+        if diff.seconds > 3600:
+            hours = diff.seconds // 3600
+            return f"{hours} hour{'s' if hours > 1 else ''} ago"
+        if diff.seconds > 60:
+            minutes = diff.seconds // 60
+            return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+        return "Just now"
 
 class StudentTeacherRelationship(models.Model):
-    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='teachers')
-    teacher = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='students')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='teachers')
+    teacher = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='students')
     subject = models.CharField(max_length=100)
     
     class Meta:
