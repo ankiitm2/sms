@@ -9,13 +9,18 @@
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title">{{ message.subject }}</h5>
+                    <div class="float-right">
+                        <a href="{% url 'inbox' %}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Inbox
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Message thread -->
                     <div class="message-thread">
                         {% for msg in thread_messages %}
-                        <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
-                            <div class="message-header">
+                        <div class="message {% if msg.sender == request.user %}message-sent{% else %}message-received{% endif %} mb-4 p-3">
+                            <div class="message-header d-flex align-items-center mb-2">
                                 <img src="{{ msg.sender.profile_picture.url|default:'/static/img/profiles/avatar-01.jpg' }}" 
                                      class="rounded-circle mr-2" 
                                      width="40" 
@@ -23,18 +28,21 @@
                                 <div>
                                     <strong>{{ msg.sender.get_full_name }}</strong>
                                     <small class="text-muted ml-2">{{ msg.sent_at|date:"M d, Y H:i" }}</small>
+                                    <div class="recipients small text-muted">
+                                        To: {% for recipient in msg.recipients.all %}{{ recipient.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             <div class="message-body">
                                 {{ msg.body|linebreaks }}
                             </div>
                             {% if msg.attachments.exists %}
-                            <div class="attachments">
+                            <div class="attachments mt-2">
                                 <strong>Attachments:</strong>
-                                <ul>
+                                <ul class="list-unstyled">
                                     {% for attachment in msg.attachments.all %}
                                     <li>
-                                        <a href="{{ attachment.file.url }}" target="_blank">
+                                        <a href="{{ attachment.file.url }}" target="_blank" class="text-primary">
                                             <i class="fas fa-paperclip"></i> {{ attachment.filename }}
                                         </a>
                                     </li>
@@ -47,8 +55,8 @@
                     </div>
                     
                     <!-- Reply form -->
-                    <div class="reply-form mt-4">
-                        <h6>Reply to this message</h6>
+                    <div class="reply-form mt-4 border-top pt-3">
+                        <h5>Reply</h5>
                         <form method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form.parent }}
@@ -66,12 +74,18 @@
                             </div>
                             <div class="form-group">
                                 <label>Attachments:</label>
-                                <input type="file" name="attachments" multiple class="form-control">
+                                <input type="file" name="attachments" multiple class="form-control-file">
                             </div>
-                            <button type="submit" class="btn btn-primary">Send Reply</button>
-                            {% if can_delete %}
-                            <a href="{% url 'delete_message' message.id %}" class="btn btn-danger float-right">Delete Message</a>
-                            {% endif %}
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Send Reply
+                                </button>
+                                {% if can_delete %}
+                                <a href="{% url 'delete_message' message.id %}" class="btn btn-danger float-right">
+                                    <i class="fas fa-trash"></i> Delete Message
+                                </a>
+                                {% endif %}
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -80,6 +94,24 @@
     </div>
 </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .message-sent {
+        background-color: #f0f8ff;
+        border-left: 4px solid #007bff;
+        padding-left: 15px;
+    }
+    .message-received {
+        background-color: #f8f9fa;
+        border-left: 4px solid #6c757d;
+        padding-left: 15px;
+    }
+    .recipients {
+        font-size: 0.8rem;
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}

@@ -701,6 +701,7 @@ def inbox(request):
 
 @login_required
 def message_detail(request, message_id):
+    # Get the main message and all related messages in the thread
     message = get_object_or_404(
         Message.objects.select_related('sender'),
         Q(id=message_id),
@@ -712,18 +713,16 @@ def message_detail(request, message_id):
         message.is_read = True
         message.save()
     
-    # Get all messages in thread
+    # Get all messages in thread (parent and all replies)
     thread_messages = Message.objects.filter(
         Q(id=message_id) | Q(parent=message_id)
-    ).order_by('sent_at').select_related('sender')
+    ).order_by('sent_at').select_related('sender').prefetch_related('recipients')
     
     if request.method == 'POST':
-        # Handle reply form submission
         form_data = request.POST.copy()
         form_data['subject'] = f"Re: {message.subject}"
         form_data['parent'] = message.id
         
-        # Create form without passing 'user' parameter
         form = MessageForm(form_data, request.FILES)
         if form.is_valid():
             reply = form.save(commit=False)
@@ -731,7 +730,7 @@ def message_detail(request, message_id):
             reply.parent = message
             reply.save()
             
-            # Set recipients - original recipients + sender
+            # Set recipients - include all original recipients plus the sender
             recipients = list(message.recipients.all())
             if message.sender not in recipients:
                 recipients.append(message.sender)
@@ -764,7 +763,6 @@ def message_detail(request, message_id):
             'body': f"\n\n--- Original Message ---\n{message.body}",
             'recipients': [message.sender.id]  # Default to replying to sender
         }
-        # Create form without passing 'user' parameter
         form = MessageForm(initial=initial)
     
     return render(request, 'inbox/message_detail.html', {
