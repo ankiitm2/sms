@@ -10,12 +10,14 @@
                 <div class="card-header">
                     <h5 class="card-title">Messages ({{ unread_count }} unread)</h5>
                     <div class="btn-group float-right">
-                        <a href="{% url 'compose_message' %}" class="btn btn-primary mr-3">
-                            <i class="fas fa-plus"></i> Compose
+                        <a href="{% url 'compose_message' %}" class="btn btn-primary mr-2">
+                            <i class="fas fa-plus mr-1"></i> Compose
                         </a>
-                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=all">All</a></button>
-                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=inbox">Inbox</a></button>
-                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=sent">Sent</a></button>
+                        <div class="btn-group" role="group">
+                            <a href="?filter=all" class="btn btn-outline-primary {% if request.GET.filter == 'all' or not request.GET.filter %}active{% endif %}">All</a>
+                            <a href="?filter=inbox" class="btn btn-outline-primary {% if request.GET.filter == 'inbox' %}active{% endif %}">Inbox</a>
+                            <a href="?filter=sent" class="btn btn-outline-primary {% if request.GET.filter == 'sent' %}active{% endif %}">Sent</a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -59,16 +61,18 @@
                                     </td>
                                     <td>{{ message.sent_at|date:"M d, Y H:i" }}</td>
                                     <td>
-                                        <a href="{% url 'message_detail' message.id %}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye"></i> View
-                                        </a>
-                                        {% if request.user.is_admin or request.user == message.sender %}
-                                        <a href="{% url 'delete_message' message.id %}" 
-                                        class="btn btn-sm btn-danger {% if not request.user.is_admin %}disabled{% endif %}"
-                                        title="{% if not request.user.is_admin %}Only admins can delete messages{% endif %}">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                        {% endif %}
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'message_detail' message.id %}" class="btn btn-primary">
+                                                <i class="fas fa-eye mr-1"></i> View
+                                            </a>
+                                            {% if request.user.is_admin or request.user == message.sender %}
+                                            <a href="{% url 'delete_message' message.id %}" 
+                                            class="btn btn-danger {% if not request.user.is_admin %}disabled{% endif %}"
+                                            title="{% if not request.user.is_admin %}Only admins can delete messages{% endif %}">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
                                     </td>
                                 </tr>
                                 {% empty %}
@@ -87,28 +91,42 @@
                     {% if messages.paginator.num_pages > 1 %}
                     <div class="d-flex justify-content-center mt-3">
                         <nav aria-label="Message pagination">
-                            <ul class="pagination">
+                            <ul class="pagination pagination-sm">
                                 {% if messages.has_previous %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page=1">&laquo; First</a>
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo;&laquo;</span>
+                                    </a>
                                 </li>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ messages.previous_page_number }}">Previous</a>
+                                    <a class="page-link" href="?page={{ messages.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
                                 </li>
                                 {% endif %}
                                 
-                                <li class="page-item active">
-                                    <span class="page-link">
-                                        Page {{ messages.number }} of {{ messages.paginator.num_pages }}
-                                    </span>
-                                </li>
+                                {% for num in messages.paginator.page_range %}
+                                    {% if messages.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                    {% elif num > messages.number|add:'-3' and num < messages.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
                                 
                                 {% if messages.has_next %}
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ messages.next_page_number }}">Next</a>
+                                    <a class="page-link" href="?page={{ messages.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
                                 </li>
                                 <li class="page-item">
-                                    <a class="page-link" href="?page={{ messages.paginator.num_pages }}">Last &raquo;</a>
+                                    <a class="page-link" href="?page={{ messages.paginator.num_pages }}" aria-label="Last">
+                                        <span aria-hidden="true">&raquo;&raquo;</span>
+                                    </a>
                                 </li>
                                 {% endif %}
                             </ul>
