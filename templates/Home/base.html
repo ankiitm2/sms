@@ -100,7 +100,7 @@
                         </div>
                      </div>
                      <a class="dropdown-item" href="{% if user.is_student %}{% url 'student_profile' %}{% elif user.is_teacher %}{% url 'teacher_profile' %}{% else %}{% url 'edit_profile' %}{% endif %}">My Profile</a>
-                     <a class="dropdown-item" href="inbox.html">Inbox</a>
+                     <a class="dropdown-item" href="{% url 'inbox' %}">Inbox</a>
                      <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                   </div>
                </li>
@@ -445,6 +445,37 @@ $(document).ready(function() {
         padding: 0;
         margin: 0;
     }
+    /* ------------------------------------------------- */
+    .message-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    border-left: 4px solid #007bff;
+}
+
+.message-body {
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    border-left: 4px solid #28a745;
+}
+
+.reply-form {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 2rem;
+}
+
+.attachment-item {
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.attachment-item:last-child {
+    border-bottom: none;
+}
 </style>
 <style>
    /* Add to your main CSS file */

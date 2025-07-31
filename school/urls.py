@@ -3,8 +3,8 @@ from .views import (
     index, dashboard, student_dashboard, student_teachers,
     teacher_dashboard, teacher_schedule, create_assignment,
     grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard,
-    mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count,
-    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, 
+    mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count, inbox, message_detail, compose_message, delete_message,
+    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView
 )
 
 urlpatterns = [
@@ -50,4 +50,10 @@ urlpatterns = [
     path('notifications/mark-as-read/', mark_notification_as_read, name='mark_notification_as_read'),
     path('notifications/mark-as-read/<uuid:notification_id>/', mark_notification_as_read, name='mark_single_notification_as_read'),
     path('notifications/delete/<uuid:notification_id>/', delete_notification, name='delete_notification'),
+
+    path('inbox/', inbox, name='inbox'),
+    path('inbox/<int:message_id>/', message_detail, name='message_detail'),
+    path('inbox/compose/', compose_message, name='compose_message'),
+    path('inbox/compose/<int:reply_to>/', compose_message, name='reply_message'),
+    path('inbox/<int:message_id>/delete/', delete_message, name='delete_message'),
 ]

@@ -1,0 +1,96 @@
+{% extends "Home/base.html" %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+<div class="content container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">{{ message.subject }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Message thread -->
+                    <div class="message-thread">
+                        {% for msg in thread_messages %}
+                        <div class="message {% if msg.sender == request.user %}sent{% else %}received{% endif %}">
+                            <div class="message-header">
+                                <img src="{{ msg.sender.profile_picture.url|default:'/static/img/profiles/avatar-01.jpg' }}" 
+                                     class="rounded-circle mr-2" 
+                                     width="40" 
+                                     alt="{{ msg.sender.get_full_name }}">
+                                <div>
+                                    <strong>{{ msg.sender.get_full_name }}</strong>
+                                    <small class="text-muted ml-2">{{ msg.sent_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                            </div>
+                            <div class="message-body">
+                                {{ msg.body|linebreaks }}
+                            </div>
+                            {% if msg.attachments.exists %}
+                            <div class="attachments">
+                                <strong>Attachments:</strong>
+                                <ul>
+                                    {% for attachment in msg.attachments.all %}
+                                    <li>
+                                        <a href="{{ attachment.file.url }}" target="_blank">
+                                            <i class="fas fa-paperclip"></i> {{ attachment.filename }}
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Reply form -->
+                    <div class="reply-form mt-4">
+                        <h6>Reply to this message</h6>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.parent }}
+                            <div class="form-group">
+                                <label>Recipients:</label>
+                                {{ form.recipients }}
+                            </div>
+                            <div class="form-group">
+                                <label>Subject:</label>
+                                {{ form.subject }}
+                            </div>
+                            <div class="form-group">
+                                <label>Message:</label>
+                                {{ form.body }}
+                            </div>
+                            <div class="form-group">
+                                <label>Attachments:</label>
+                                <input type="file" name="attachments" multiple class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send Reply</button>
+                            {% if can_delete %}
+                            <a href="{% url 'delete_message' message.id %}" class="btn btn-danger float-right">Delete Message</a>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#id_recipients').select2({
+        placeholder: "Select recipients",
+        width: '100%'
+    });
+});
+</script>
+{% endblock %}

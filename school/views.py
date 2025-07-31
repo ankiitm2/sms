@@ -19,7 +19,12 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
-from datetime import timedelta
+from .models import Message, MessageAttachment
+from .forms import MessageForm
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.urls import reverse
+
 
 def index(request):
     # Redirect to login page or dashboard based on authentication
@@ -680,3 +685,162 @@ class ExamDeleteView(LoginRequiredMixin, DeleteView):
     model = Exam
     template_name = 'exam_confirm_delete.html'
     success_url = reverse_lazy('exam_list')
+
+
+@login_required
+def inbox(request):
+    message_list = request.user.received_messages.filter(parent__isnull=True)
+    paginator = Paginator(message_list, 10)
+    page_number = request.GET.get('page')
+    messages = paginator.get_page(page_number)
+    
+    return render(request, 'inbox/inbox.html', {
+        'messages': messages,
+        'unread_count': request.user.received_messages.filter(is_read=False).count()
+    })
+
+@login_required
+def message_detail(request, message_id):
+    message = get_object_or_404(
+        Message.objects.select_related('sender'),
+        Q(id=message_id),
+        Q(recipients=request.user) | Q(sender=request.user)
+    )
+    
+    # Mark as read if recipient
+    if request.user in message.recipients.all() and not message.is_read:
+        message.is_read = True
+        message.save()
+    
+    # Get all messages in thread
+    thread_messages = Message.objects.filter(
+        Q(id=message_id) | Q(parent=message_id)
+    ).order_by('sent_at').select_related('sender')
+    
+    if request.method == 'POST':
+        # Handle reply form submission
+        form_data = request.POST.copy()
+        form_data['subject'] = f"Re: {message.subject}"
+        form_data['parent'] = message.id
+        
+        # Create form without passing 'user' parameter
+        form = MessageForm(form_data, request.FILES)
+        if form.is_valid():
+            reply = form.save(commit=False)
+            reply.sender = request.user
+            reply.parent = message
+            reply.save()
+            
+            # Set recipients - original recipients + sender
+            recipients = list(message.recipients.all())
+            if message.sender not in recipients:
+                recipients.append(message.sender)
+            reply.recipients.set(recipients)
+            
+            # Handle attachments
+            files = request.FILES.getlist('attachments')
+            for f in files:
+                MessageAttachment.objects.create(message=reply, file=f)
+            
+            # Create notifications for all recipients except sender
+            for recipient in recipients:
+                if recipient != request.user:
+                    Notification.objects.create(
+                        user=recipient,
+                        title=f"New reply: {reply.subject}",
+                        message=f"New reply from {request.user.get_full_name()}",
+                        notification_type='message',
+                        related_url=reverse('message_detail', args=[message.id])
+                    )
+            
+            messages.success(request, 'Reply sent successfully!')
+            return redirect('message_detail', message_id=message.id)
+        else:
+            messages.error(request, 'Error sending reply. Please check the form.')
+    else:
+        initial = {
+            'parent': message.id,
+            'subject': f"Re: {message.subject}",
+            'body': f"\n\n--- Original Message ---\n{message.body}",
+            'recipients': [message.sender.id]  # Default to replying to sender
+        }
+        # Create form without passing 'user' parameter
+        form = MessageForm(initial=initial)
+    
+    return render(request, 'inbox/message_detail.html', {
+        'message': message,
+        'thread_messages': thread_messages,
+        'form': form,
+        'can_delete': request.user.is_admin or request.user == message.sender
+    })
+
+@login_required
+def compose_message(request, reply_to=None):
+    parent = None
+    if reply_to:
+        parent = get_object_or_404(Message, id=reply_to)
+    
+    if request.method == 'POST':
+        form = MessageForm(request.POST, request.FILES)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = request.user  # Set sender from request.user
+            message.save()
+            
+            # Add recipients from the form
+            recipients = form.cleaned_data['recipients']
+            message.recipients.set(recipients)
+            
+            # Handle multiple file attachments
+            files = request.FILES.getlist('attachments')
+            for f in files:
+                MessageAttachment.objects.create(
+                    message=message,
+                    file=f
+                )
+            
+            messages.success(request, 'Message sent successfully!')
+            return redirect('inbox')
+    else:
+        initial = {}
+        if parent:
+            initial = {
+                'subject': f"Re: {parent.subject}",
+                'parent': parent.id,
+                'recipients': [parent.sender.id]
+            }
+        form = MessageForm(initial=initial)
+    
+    return render(request, 'inbox/compose.html', {
+        'form': form,
+        'parent': parent
+    })
+
+@login_required
+def delete_message(request, message_id):
+    # Only allow admin users to delete
+    if not request.user.is_admin:
+        raise PermissionDenied("Only administrators can delete messages")
+    
+    message = get_object_or_404(Message, id=message_id)
+    
+    if request.method == 'POST':
+        # Notify all participants before deletion
+        participants = list(message.recipients.all())
+        participants.append(message.sender)
+        
+        for user in participants:
+            if user != request.user:  # Don't notify yourself
+                Notification.objects.create(
+                    user=user,
+                    title="Message deleted by admin",
+                    message=f"Message '{message.subject}' was deleted",
+                    notification_type='message'
+                )
+        
+        message.delete()
+        messages.success(request, 'Message deleted successfully!')
+        return redirect('inbox')
+    
+    # GET request - show confirmation
+    return render(request, 'inbox/confirm_delete.html', {'message': message})
