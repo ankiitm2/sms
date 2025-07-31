@@ -1,3 +1,4 @@
+# school/middleware
 from django.http import HttpResponseForbidden
 
 class RoleAccessMiddleware:

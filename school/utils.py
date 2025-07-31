@@ -1,3 +1,4 @@
+# school/utils
 from .models import Notification
 
 def create_notification(user, message):

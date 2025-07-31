@@ -1,3 +1,4 @@
+# student/models
 from django.db import models
 from django.utils.text import slugify
 from home_auth.models import CustomUser
