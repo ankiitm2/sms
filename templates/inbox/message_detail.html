@@ -23,7 +23,8 @@
                             <div class="message-header d-flex align-items-center mb-2">
                                 <img src="{{ msg.sender.profile_picture.url|default:'/static/img/profiles/avatar-01.jpg' }}" 
                                      class="rounded-circle mr-2" 
-                                     width="40" 
+                                     width="40"
+                                     height="40"
                                      alt="{{ msg.sender.get_full_name }}">
                                 <div>
                                     <strong>{{ msg.sender.get_full_name }}</strong>
@@ -80,8 +81,10 @@
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane"></i> Send Reply
                                 </button>
-                                {% if can_delete %}
-                                <a href="{% url 'delete_message' message.id %}" class="btn btn-danger float-right">
+                                {% if request.user.is_admin or request.user == message.sender %}
+                                <a href="{% url 'delete_message' message.id %}" 
+                                class="btn btn-danger float-right {% if not request.user.is_admin %}disabled{% endif %}"
+                                title="{% if not request.user.is_admin %}Only admins can delete messages{% endif %}">
                                     <i class="fas fa-trash"></i> Delete Message
                                 </a>
                                 {% endif %}

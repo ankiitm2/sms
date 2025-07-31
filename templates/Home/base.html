@@ -12,6 +12,7 @@
       <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/fontawesome.min.css' %}">
       <link rel="stylesheet" href="{% static 'plugins/fontawesome/css/all.min.css' %}">
       <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
    </head>
    <body>
       <div class="main-wrapper">
@@ -336,6 +337,60 @@
             });
          });
       </script>
+      <script>
+// Notification handling for all users including students
+function showNewNotification(notification) {
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+    
+    Toast.fire({
+        icon: 'info',
+        title: notification.title,
+        html: `<small>${notification.message}</small>`,
+        footer: `<a href="${notification.url}" class="btn btn-sm btn-link">View</a>`
+    });
+    
+    // Mark as read
+    $.post('{% url "mark_notification_as_read" %}', {
+        notification_id: notification.id,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    });
+}
+
+// Check for new notifications periodically
+function checkNotifications() {
+    $.ajax({
+        url: '{% url "get_unread_notifications" %}',
+        success: function(data) {
+            // Update counter
+            $('#notification-counter').text(data.unread_count);
+            
+            // Show new notifications (including for students)
+            if(data.notifications && data.notifications.length > 0) {
+                data.notifications.forEach(showNewNotification);
+            }
+        }
+    });
+}
+
+// Run immediately and every 30 seconds
+$(document).ready(function() {
+    checkNotifications();
+    setInterval(checkNotifications, 30000);
+    
+    // Also check when window regains focus
+    $(window).on('focus', checkNotifications);
+});
+</script>
       <script>
 $(document).ready(function() {
     // Function to update notification dropdown

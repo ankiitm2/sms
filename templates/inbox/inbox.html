@@ -1,6 +1,5 @@
 {% extends "Home/base.html" %}
 {% load static %}
-{% load user_tags %}
 
 {% block body %}
 <div class="page-wrapper">
@@ -9,11 +8,14 @@
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Inbox ({{ unread_count }} unread)</h5>
-                    <div class="float-right">
-                        <a href="{% url 'compose_message' %}" class="btn btn-primary">
+                    <h5 class="card-title">Messages ({{ unread_count }} unread)</h5>
+                    <div class="btn-group float-right">
+                        <a href="{% url 'compose_message' %}" class="btn btn-primary mr-3">
                             <i class="fas fa-plus"></i> Compose
                         </a>
+                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=all">All</a></button>
+                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=inbox">Inbox</a></button>
+                        <button type="button" class="btn btn-primary mr-3 text-light"><a class="text-light" href="?filter=sent">Sent</a></button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -21,7 +23,7 @@
                         <table class="table table-hover table-mailbox">
                             <thead>
                                 <tr>
-                                    <th width="20%">From</th>
+                                    <th width="20%">{% if request.GET.filter == 'sent' %}To{% else %}From{% endif %}</th>
                                     <th>Subject</th>
                                     <th width="20%">Date</th>
                                     <th width="15%">Actions</th>
@@ -29,35 +31,41 @@
                             </thead>
                             <tbody>
                                 {% for message in messages %}
-                                <tr class="{% if not message.is_read %}unread font-weight-bold{% endif %}">
+                                <tr class="{% if not message.is_read and request.user in message.recipients.all %}unread font-weight-bold{% endif %}">
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ message.sender|user_avatar }}" 
-                                                 class="rounded-circle mr-2" 
-                                                 width="30" 
-                                                 alt="{{ message.sender.get_full_name }}">
+                                            {% if request.GET.filter == 'sent' %}
+                                            <span class="badge badge-info mr-2">Sent</span>
+                                            {% for recipient in message.recipients.all %}
+                                            <span class="mr-1">{{ recipient.get_full_name }}</span>
+                                            {% endfor %}
+                                            {% else %}
+                                            <img src="{{ message.sender.profile_picture.url|default:'/static/img/profiles/avatar-01.jpg' }}" 
+                                                class="rounded-circle mr-2" 
+                                                width="30"
+                                                height="30"
+                                                alt="{{ message.sender.get_full_name }}">
                                             {{ message.sender.get_full_name }}
+                                            {% endif %}
                                         </div>
                                     </td>
                                     <td>
                                         <a href="{% url 'message_detail' message.id %}">
                                             {{ message.subject }}
-                                            {% if message.attachments.count > 0 %}
+                                            {% if message.attachments.exists %}
                                             <i class="fas fa-paperclip ml-2"></i>
                                             {% endif %}
                                         </a>
                                     </td>
                                     <td>{{ message.sent_at|date:"M d, Y H:i" }}</td>
                                     <td>
-                                        <a href="{% url 'reply_message' message.id %}" 
-                                           class="btn btn-sm btn-primary" 
-                                           title="Reply">
-                                            <i class="fas fa-reply"></i>
+                                        <a href="{% url 'message_detail' message.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> View
                                         </a>
                                         {% if request.user.is_admin or request.user == message.sender %}
                                         <a href="{% url 'delete_message' message.id %}" 
-                                           class="btn btn-sm btn-danger" 
-                                           title="Delete">
+                                        class="btn btn-sm btn-danger {% if not request.user.is_admin %}disabled{% endif %}"
+                                        title="{% if not request.user.is_admin %}Only admins can delete messages{% endif %}">
                                             <i class="fas fa-trash"></i>
                                         </a>
                                         {% endif %}
@@ -67,7 +75,7 @@
                                 <tr>
                                     <td colspan="4" class="text-center py-4">
                                         <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted">Your inbox is empty</p>
+                                        <p class="text-muted">No messages found</p>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -113,19 +121,4 @@
     </div>
 </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .table-mailbox tr.unread td {
-        background-color: #f8f9fa;
-    }
-    .table-mailbox tr:hover td {
-        background-color: #f1f1f1;
-    }
-    .select2-container--default .select2-selection--multiple {
-        border: 1px solid #ced4da;
-        padding: 0.375rem 0.75rem;
-    }
-</style>
 {% endblock %}
