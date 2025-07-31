@@ -1,3 +1,4 @@
+# home_auth/views
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .models import CustomUser, PasswordResetRequest

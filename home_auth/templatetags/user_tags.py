@@ -1,3 +1,4 @@
+# home_auth/templatetags/user_tags
 from django import template
 from django.conf import settings
 

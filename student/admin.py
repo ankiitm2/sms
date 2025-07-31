@@ -1,3 +1,4 @@
+# student/admin
 from django.contrib import admin
 from .models import Parent, Student
 
