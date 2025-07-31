@@ -21,7 +21,7 @@
              <a href="{% if user.is_authenticated %}{% if user.is_student %}{% url 'student_dashboard' %}{% elif user.is_teacher %}{% url 'teacher_dashboard' %}{% elif user.is_admin %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}{% else %}{% url 'login' %}{% endif %}" class="logo">
                <img src="{% static 'img/logo.png' %}" alt="Logo">
             </a>
-               <a href="{% static 'img/index.html' %}" class="logo logo-small">
+               <a href="{% if user.is_authenticated %}{% if user.is_student %}{% url 'student_dashboard' %}{% elif user.is_teacher %}{% url 'teacher_dashboard' %}{% elif user.is_admin %}{% url 'admin_dashboard' %}{% else %}{% url 'dashboard' %}{% endif %}{% else %}{% url 'login' %}{% endif %}" class="logo logo-small">
                <img src="{% static 'img/logo-small.png' %}" alt="Logo" width="30" height="30">
                </a>
             </div>
@@ -144,6 +144,9 @@
                            <i class="fas fa-chalkboard-teacher"></i> <span>My Teachers</span>
                         </a>
                      </li>
+                     <li class="{% if current_url_name == 'departments' or current_url_name == 'dashboard' %}active{% endif %}">
+                       <a href="departments.html"><i class="fas fa-building"></i> <span> Departments</span></a>
+                     </li>
                      {% elif user.is_teacher %}
                      <li class="submenu">
                         <a href="#"><i class="fas fa-chalkboard-teacher"></i> <span> Teachers</span> <span class="menu-arrow"></span></a>
@@ -154,15 +157,14 @@
                            {% endif %}
                         </ul>
                      </li>
-                     {% endif %}
                      <li class="submenu">
                         <a href="#"><i class="fas fa-building"></i> <span> Departments</span> <span class="menu-arrow"></span></a>
                         <ul>
                            <li><a href="departments.html">Department List</a></li>
                            <li><a href="add-department.html">Department Add</a></li>
-                           <li><a href="edit-department.html">Department Edit</a></li>
                         </ul>
                      </li>
+                     {% endif %}
                      <li class="submenu">
                         <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
                         <ul>
