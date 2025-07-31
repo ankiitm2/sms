@@ -689,19 +689,32 @@ class ExamDeleteView(LoginRequiredMixin, DeleteView):
 
 @login_required
 def inbox(request):
-    message_list = request.user.received_messages.filter(parent__isnull=True)
-    paginator = Paginator(message_list, 10)
+    # Get filter parameter from request
+    message_filter = request.GET.get('filter', 'all')
+    
+    # Get messages based on filter
+    if message_filter == 'inbox':
+        messages = request.user.received_messages.filter(parent__isnull=True)
+    elif message_filter == 'sent':
+        messages = request.user.sent_messages.filter(parent__isnull=True)
+    else:  # 'all'
+        messages = (request.user.received_messages.filter(parent__isnull=True) | 
+                   request.user.sent_messages.filter(parent__isnull=True)).distinct()
+    
+    # Order by most recent and paginate
+    messages = messages.order_by('-sent_at')
+    paginator = Paginator(messages, 10)
     page_number = request.GET.get('page')
     messages = paginator.get_page(page_number)
     
     return render(request, 'inbox/inbox.html', {
         'messages': messages,
+        'current_filter': message_filter,
         'unread_count': request.user.received_messages.filter(is_read=False).count()
     })
 
 @login_required
 def message_detail(request, message_id):
-    # Get the main message and all related messages in the thread
     message = get_object_or_404(
         Message.objects.select_related('sender'),
         Q(id=message_id),
@@ -713,7 +726,7 @@ def message_detail(request, message_id):
         message.is_read = True
         message.save()
     
-    # Get all messages in thread (parent and all replies)
+    # Get complete thread
     thread_messages = Message.objects.filter(
         Q(id=message_id) | Q(parent=message_id)
     ).order_by('sent_at').select_related('sender').prefetch_related('recipients')
@@ -730,7 +743,7 @@ def message_detail(request, message_id):
             reply.parent = message
             reply.save()
             
-            # Set recipients - include all original recipients plus the sender
+            # Set recipients - include all original recipients plus sender
             recipients = list(message.recipients.all())
             if message.sender not in recipients:
                 recipients.append(message.sender)
@@ -741,7 +754,10 @@ def message_detail(request, message_id):
             for f in files:
                 MessageAttachment.objects.create(message=reply, file=f)
             
-            # Create notifications for all recipients except sender
+            # Create toast notification
+            messages.success(request, 'Reply sent successfully!')
+            
+            # Create database notifications for all recipients (including students)
             for recipient in recipients:
                 if recipient != request.user:
                     Notification.objects.create(
@@ -752,16 +768,14 @@ def message_detail(request, message_id):
                         related_url=reverse('message_detail', args=[message.id])
                     )
             
-            messages.success(request, 'Reply sent successfully!')
             return redirect('message_detail', message_id=message.id)
-        else:
-            messages.error(request, 'Error sending reply. Please check the form.')
+    
     else:
         initial = {
             'parent': message.id,
             'subject': f"Re: {message.subject}",
             'body': f"\n\n--- Original Message ---\n{message.body}",
-            'recipients': [message.sender.id]  # Default to replying to sender
+            'recipients': [message.sender.id]
         }
         form = MessageForm(initial=initial)
     
@@ -769,7 +783,7 @@ def message_detail(request, message_id):
         'message': message,
         'thread_messages': thread_messages,
         'form': form,
-        'can_delete': request.user.is_admin or request.user == message.sender
+        'can_delete': (request.user.is_admin or request.user == message.sender) and not request.user.is_student
     })
 
 @login_required
@@ -818,7 +832,8 @@ def compose_message(request, reply_to=None):
 def delete_message(request, message_id):
     # Only allow admin users to delete
     if not request.user.is_admin:
-        raise PermissionDenied("Only administrators can delete messages")
+        messages.error(request, "Only administrators can delete messages")
+        return HttpResponseForbidden("Only administrators can delete messages")
     
     message = get_object_or_404(Message, id=message_id)
     
