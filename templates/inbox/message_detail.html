@@ -10,6 +10,9 @@
                 <div class="card-header">
                     <h5 class="card-title">{{ message.subject }}</h5>
                     <div class="float-right">
+                        <a href="{% url 'reply_message' message.id %}" class="btn btn-primary btn-sm">
+        <i class="fas fa-reply"></i> Reply
+    </a>
                         <a href="{% url 'inbox' %}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Back to Inbox
                         </a>

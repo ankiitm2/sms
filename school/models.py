@@ -164,7 +164,10 @@ class Message(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.subject} - {self.sender}"
+        return f"{self.subject} (From: {self.sender}, To: {', '.join([r.get_full_name() for r in self.recipients.all()])})"
+    
+    def get_absolute_url(self):
+        return reverse('message_detail', args=[str(self.id)])
 
 class MessageAttachment(models.Model):
     message = models.ForeignKey(
