@@ -692,14 +692,27 @@ def inbox(request):
     # Get filter parameter from request
     message_filter = request.GET.get('filter', 'all')
     
-    # Get messages based on filter
-    if message_filter == 'inbox':
-        messages = request.user.received_messages.filter(parent__isnull=True)
-    elif message_filter == 'sent':
-        messages = request.user.sent_messages.filter(parent__isnull=True)
-    else:  # 'all'
-        messages = (request.user.received_messages.filter(parent__isnull=True) | 
-                   request.user.sent_messages.filter(parent__isnull=True)).distinct()
+    # Get messages based on filter and user role
+    if request.user.is_admin:
+        # Admin can see all messages
+        if message_filter == 'inbox':
+            messages = Message.objects.filter(recipients=request.user, parent__isnull=True)
+        elif message_filter == 'sent':
+            messages = Message.objects.filter(sender=request.user, parent__isnull=True)
+        else:  # 'all'
+            messages = Message.objects.filter(
+                Q(recipients=request.user) | Q(sender=request.user),
+                parent__isnull=True
+            ).distinct()
+    else:
+        # Regular users see normal filtered messages
+        if message_filter == 'inbox':
+            messages = request.user.received_messages.filter(parent__isnull=True)
+        elif message_filter == 'sent':
+            messages = request.user.sent_messages.filter(parent__isnull=True)
+        else:  # 'all'
+            messages = (request.user.received_messages.filter(parent__isnull=True) | 
+                       request.user.sent_messages.filter(parent__isnull=True)).distinct()
     
     # Order by most recent and paginate
     messages = messages.order_by('-sent_at')
@@ -757,18 +770,22 @@ def message_detail(request, message_id):
             # Create toast notification
             messages.success(request, 'Reply sent successfully!')
             
-            # Create database notifications for all recipients (including students)
             for recipient in recipients:
                 if recipient != request.user:
-                    Notification.objects.create(
+                    # Create notification with proper URL
+                    notification = Notification.objects.create(
                         user=recipient,
-                        title=f"New reply: {reply.subject}",
-                        message=f"New reply from {request.user.get_full_name()}",
+                        title=f"New message: {message.subject}",
+                        message=f"New message from {request.user.get_full_name()}",
                         notification_type='message',
                         related_url=reverse('message_detail', args=[message.id])
                     )
-            
-            return redirect('message_detail', message_id=message.id)
+                    
+                    # For students, ensure they can access the message
+                    if recipient.is_student:
+                        # Make sure student has permission to view the message
+                        message.recipients.add(recipient)
+                        message.save()
     
     else:
         initial = {
@@ -828,32 +845,38 @@ def compose_message(request, reply_to=None):
         'parent': parent
     })
 
+
+@login_required
+def admin_message_list(request):
+    if not request.user.is_admin:
+        return HttpResponseForbidden()
+    
+    messages = Message.objects.all().order_by('-sent_at')
+    return render(request, 'admin/message_list.html', {'messages': messages})
+
 @login_required
 def delete_message(request, message_id):
-    # Only allow admin users to delete
     if not request.user.is_admin:
-        messages.error(request, "Only administrators can delete messages")
-        return HttpResponseForbidden("Only administrators can delete messages")
+        return HttpResponseForbidden()
     
     message = get_object_or_404(Message, id=message_id)
     
     if request.method == 'POST':
-        # Notify all participants before deletion
+        # Create notifications for all participants
         participants = list(message.recipients.all())
         participants.append(message.sender)
         
         for user in participants:
-            if user != request.user:  # Don't notify yourself
+            if user != request.user:
                 Notification.objects.create(
                     user=user,
-                    title="Message deleted by admin",
-                    message=f"Message '{message.subject}' was deleted",
+                    title="Message deleted",
+                    message=f"Message '{message.subject}' was deleted by admin",
                     notification_type='message'
                 )
         
         message.delete()
-        messages.success(request, 'Message deleted successfully!')
-        return redirect('inbox')
+        messages.success(request, 'Message deleted successfully')
+        return redirect('admin_message_list')
     
-    # GET request - show confirmation
-    return render(request, 'inbox/confirm_delete.html', {'message': message})
+    return render(request, 'admin/confirm_delete.html', {'message': message})
