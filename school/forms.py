@@ -2,6 +2,10 @@ from django import forms
 from .models import Exam, Timetable
 from django.core.exceptions import ValidationError
 from .models import CustomUser
+from django.contrib.auth import get_user_model
+from .models import Message, MessageAttachment
+
+User = get_user_model()
 
 CLASS_CHOICES = [
     ('Class 1', 'Class 1'),
@@ -68,3 +72,54 @@ class ExamForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = single_file_clean(data, initial)
+        return result
+
+class MessageForm(forms.ModelForm):
+    attachments = MultipleFileField(required=False)
+    recipients = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=forms.SelectMultiple(attrs={'class': 'select2'}),
+        required=True
+    )
+
+    class Meta:
+        model = Message
+        fields = ['subject', 'body', 'recipients', 'parent']
+        widgets = {
+            'subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Subject'
+            }),
+            'body': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 8,
+                'placeholder': 'Type your message here...'
+            }),
+            'parent': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' from kwargs if it exists
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # If we have a user, we can customize the form
+        if self.user:
+            # Example: Exclude current user from recipients
+            self.fields['recipients'].queryset = User.objects.exclude(id=self.user.id)

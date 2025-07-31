@@ -133,3 +133,47 @@ class Exam(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.subject} ({self.date}) for {self.student_class} {self.section}"
+    
+
+class Message(models.Model):
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name='sent_messages',
+        on_delete=models.CASCADE
+    )
+    recipients = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='received_messages'
+    )
+    subject = models.CharField(max_length=200)
+    body = models.TextField()
+    sent_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+    parent = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='replies'
+    )
+
+    class Meta:
+        ordering = ['-sent_at']
+        permissions = [
+            ("broadcast_message", "Can send messages to multiple recipients"),
+        ]
+
+    def __str__(self):
+        return f"{self.subject} - {self.sender}"
+
+class MessageAttachment(models.Model):
+    message = models.ForeignKey(
+        Message,
+        related_name='attachments',
+        on_delete=models.CASCADE
+    )
+    file = models.FileField(upload_to='message_attachments/%Y/%m/%d/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def filename(self):
+        return self.file.name.split('/')[-1]

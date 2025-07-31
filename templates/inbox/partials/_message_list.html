@@ -1,0 +1,22 @@
+<div class="message-list">
+    {% for message in messages %}
+    <a href="{% url 'message_detail' message.id %}" class="message-item {% if not message.is_read %}unread{% endif %}">
+        <div class="sender-avatar">
+            <img src="{{ message.sender|user_avatar }}" alt="{{ message.sender.get_full_name }}">
+        </div>
+        <div class="message-preview">
+            <div class="message-header">
+                <span class="sender-name">{{ message.sender.get_full_name }}</span>
+                <span class="message-time">{{ message.sent_at|timesince }} ago</span>
+            </div>
+            <div class="message-subject">{{ message.subject }}</div>
+            <div class="message-excerpt">{{ message.body|truncatechars:80 }}</div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="empty-message">
+        <i class="fas fa-envelope-open"></i>
+        <p>No messages found</p>
+    </div>
+    {% endfor %}
+</div>

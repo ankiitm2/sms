@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'school',
     'student',
+    'django_select2',
 ]
 
 MIDDLEWARE = [
