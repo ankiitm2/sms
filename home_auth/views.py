@@ -140,6 +140,9 @@ def signup_view(request):
                     admission_number='',
                     parent=Parent.objects.create()  # Minimal parent record
                 )
+
+            elif role == 'teacher':
+                user.is_teacher = True
             
             user.save()
             login(request, user)
