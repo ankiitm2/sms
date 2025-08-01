@@ -191,9 +191,9 @@
                            <li><a href="add-salary.html">Add Salary</a></li>
                         </ul>
                      </li>
-                     <li>
-                        <a href="holiday.html"><i class="fas fa-holly-berry"></i> <span>Holiday</span></a>
-                     </li>
+                     <li class="{% if 'holiday' in request.path %}active{% endif %}">
+    <a href="{% url 'holiday_list' %}"><i class="fas fa-holly-berry"></i> <span>Holidays</span></a>
+</li>
                      <li>
                         <a href="fees.html"><i class="fas fa-comment-dollar"></i> <span>Fees</span></a>
                      </li>

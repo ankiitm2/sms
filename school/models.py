@@ -204,17 +204,17 @@ class Department(models.Model):
         return f"{self.name} ({self.code})"
     
 
-# class Holiday(models.Model):
-#     name = models.CharField(max_length=100)
-#     date = models.DateField()
-#     recurring = models.BooleanField(default=False)
-#     description  = models.TextField(blank=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+class Holiday(models.Model):
+    name = models.CharField(max_length=100)
+    date = models.DateField()
+    recurring = models.BooleanField(default=False)
+    description  = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-#     class Meta:
-#         ordering = ['date']
-#         verbose_name_plural = 'Holidays'
+    class Meta:
+        ordering = ['date']
+        verbose_name_plural = 'Holidays'
 
-#     def __str__(self):
-#         return f"{self.name} ({self.date})"
+    def __str__(self):
+        return f"{self.name} ({self.date})"

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.contrib.auth import get_user_model
 from .models import Department
-from .models import Message, MessageAttachment
+from .models import Message, Holiday, MessageAttachment
 
 User = get_user_model()
 
@@ -139,3 +139,12 @@ class DepartmentForm(forms.ModelForm):
     def __int__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['head'].queryset = CustomUser.objects.filter(is_teacher=True)
+
+class HolidayForm(forms.ModelForm):
+    class Meta:
+        modal = Holiday
+        fields = ['name', 'date', 'recurring', 'description']
+        widgets = {
+            'date': forms.DateInput(attrs={'type':'date'}),
+            'description':forms.Textarea(attrs={'rows':3}),
+        }
