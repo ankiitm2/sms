@@ -1,3 +1,4 @@
+<!-- templates/Home/base.html -->
 {% load static user_tags %}
 {% with current_path=request.path current_url_name=request.resolver_match.url_name %}
 <!DOCTYPE html>
@@ -39,46 +40,46 @@
             </a>
             <ul class="nav user-menu">
                  <!-- Notification Dropdown in Header -->
-<li class="nav-item dropdown no-arrow mx-1">
-    <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
-       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <i class="fas fa-bell fa-fw"></i>
-        <!-- Counter - Alerts -->
-        <span class="badge badge-danger badge-counter" id="notification-counter">
-            {{ unread_count }}
-        </span>
-    </a>
-    <!-- Dropdown - Alerts -->
-    <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
-         aria-labelledby="alertsDropdown">
-        <h6 class="dropdown-header">
-            Notifications Center
-        </h6>
-        <div id="notification-dropdown-items">
-            {% for notification in unread_notifications %}
-            <a class="dropdown-item d-flex align-items-center notification-dropdown-item" 
-               href="{{ notification.related_url|default:'#' }}" 
-               data-notification-id="{{ notification.id }}">
-                <div class="mr-3">
-                    <div class="icon-circle bg-info p-2">
-                        <i class="fas fa-bell text-white"></i>
-                    </div>
-                </div>
-                <div>
-                    <div class="small text-gray-500">{{ notification.created_at|date:"F j, Y, g:i a" }}</div>
-                    <span class="font-weight-bold">{{ notification.title }}</span>
-                    <div class="small">{{ notification.message|truncatechars:50 }}</div>
-                </div>
-            </a>
-            {% empty %}
-            <a class="dropdown-item text-center small text-gray-500" href="#">No Unread Notifications</a>
-            {% endfor %}
-        </div>
-        <a class="dropdown-item text-center small text-gray-500" href="{% url 'all_notifications' %}">
-            Show All Notifications
-        </a>
-    </div>
-</li>
+               <li class="nav-item dropdown no-arrow mx-1">
+                  <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" 
+                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                     <i class="fas fa-bell fa-fw"></i>
+                     <!-- Counter - Alerts -->
+                     <span class="badge badge-danger badge-counter" id="notification-counter">
+                           {{ unread_count }}
+                     </span>
+                  </a>
+                  <!-- Dropdown - Alerts -->
+                  <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+                        aria-labelledby="alertsDropdown">
+                     <h6 class="dropdown-header">
+                           Notifications Center
+                     </h6>
+                     <div id="notification-dropdown-items">
+                           {% for notification in unread_notifications %}
+                           <a class="dropdown-item d-flex align-items-center notification-dropdown-item" 
+                              href="{{ notification.related_url|default:'#' }}" 
+                              data-notification-id="{{ notification.id }}">
+                              <div class="mr-3">
+                                 <div class="icon-circle bg-info p-2">
+                                       <i class="fas fa-bell text-white"></i>
+                                 </div>
+                              </div>
+                              <div>
+                                 <div class="small text-gray-500">{{ notification.created_at|date:"F j, Y, g:i a" }}</div>
+                                 <span class="font-weight-bold">{{ notification.title }}</span>
+                                 <div class="small">{{ notification.message|truncatechars:50 }}</div>
+                              </div>
+                           </a>
+                           {% empty %}
+                           <a class="dropdown-item text-center small text-gray-500" href="#">No Unread Notifications</a>
+                           {% endfor %}
+                     </div>
+                     <a class="dropdown-item text-center small text-gray-500" href="{% url 'all_notifications' %}">
+                           Show All Notifications
+                     </a>
+                  </div>
+               </li>
                <li class="nav-item dropdown has-arrow">
                   <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                   <span class="user-img">
@@ -145,7 +146,7 @@
                         </a>
                      </li>
                      <li class="{% if current_url_name == 'departments' or current_url_name == 'dashboard' %}active{% endif %}">
-                       <a href="departments.html"><i class="fas fa-building"></i> <span> Departments</span></a>
+                       <a href="{% url 'department_list' %}"><i class="fas fa-building"></i> <span> Departments</span></a>
                      </li>
                      {% elif user.is_teacher %}
                      <li class="submenu">
@@ -157,11 +158,11 @@
                            {% endif %}
                         </ul>
                      </li>
-                     <li class="submenu">
+                     <li class="submenu {% if 'department' in current_url_name %}active{% endif %}">
                         <a href="#"><i class="fas fa-building"></i> <span> Departments</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="departments.html">Department List</a></li>
-                           <li><a href="add-department.html">Department Add</a></li>
+                           <li class="{% if current_url_name == 'department_list' %}active{% endif %}"><a href="{% url 'department_list' %}">Department List</a></li>
+                           <li class="{% if current_url_name == 'add_department' %}active{% endif %}"><a href="{% url 'add_department' %}">Department Add</a></li>
                         </ul>
                      </li>
                      {% endif %}

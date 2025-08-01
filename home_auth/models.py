@@ -12,7 +12,6 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 
 
-
 # Create your models here.
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
@@ -24,7 +23,13 @@ class CustomUser(AbstractUser):
     section = models.CharField(max_length=10, null=True, blank=True)
 
     phone = models.CharField(max_length=20, null=True, blank=True)
-    department = models.CharField(max_length=100, null=True, blank=True)
+    department = models.ForeignKey(
+        'school.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='members'
+    )
     qualification = models.CharField(max_length=100, null=True, blank=True)
     specialization = models.CharField(max_length=100, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)

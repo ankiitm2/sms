@@ -4,6 +4,7 @@ from .models import Exam, Timetable
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.contrib.auth import get_user_model
+from .models import Department
 from .models import Message, MessageAttachment
 
 User = get_user_model()
@@ -124,3 +125,17 @@ class MessageForm(forms.ModelForm):
         if self.user:
             # Example: Exclude current user from recipients
             self.fields['recipients'].queryset = User.objects.exclude(id=self.user.id)
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = ['name', 'code', 'description', 'head']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'head': forms.Select(attrs={'class': 'form-control select2'}),
+        }
+
+    def __int__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['head'].queryset = CustomUser.objects.filter(is_teacher=True)
