@@ -1,3 +1,4 @@
+<!-- templates/authentication/register.html -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +48,7 @@
                         {% endif %}
                         
                         <!-- Registration Form -->
-                        <form method="POST" action="{% url 'signup' %}">
+                        <form method="POST" action="{% url 'signup' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
                                 <input class="form-control" type="text" name="first_name" placeholder="First Name" required>
