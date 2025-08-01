@@ -19,8 +19,8 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
-from .models import Message, MessageAttachment
-from .forms import MessageForm
+from .models import Message, MessageAttachment, Holiday
+from .forms import MessageForm, HolidayForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.urls import reverse
@@ -944,4 +944,53 @@ class DepartmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Department deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+    
+
+class HolidayListView(LoginRequiredMixin, ListView):
+    model = Holiday
+    template_name = 'holidays/holiday_list.html'
+    context_object_name = 'holidays'
+
+    def get_queryset(self):
+        return Holiday.objects.filter(date__gte=timezone.now().date()).order_by('date')
+    
+class HolidayCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Holiday
+    form_class = HolidayForm
+    template_name = 'holidays/holiday_form.html'
+    success_url = reverse_lazy('holiday_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Holiday added successfully!')
+        return response
+    
+class HolidayUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Holiday
+    form_class = HolidayForm
+    template_name = 'holiday/holiday_form.html'
+    success_url = reverse_lazy('holiday_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Holiday updated successfully!')
+        return response
+    
+class HolidayDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Holiday
+    template_name = 'holiday/holiday_confirm_delete.html'
+    success_url = reverse_lazy('holiday_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Holiday deleted successfully!')
         return super().delete(request, *args, **kwargs)

@@ -30,3 +30,10 @@ class DepartmentAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('name', 'code', 'head__first_name', 'head__last_name')
     raw_id_fields = ('head',)
+
+@admin.register(Holiday)
+class HolidayAdmin(admin.ModelAdmin):
+    list_display = ('name', 'date', 'recurring', 'created_at')
+    list_filter = ('recurring', 'date')
+    search_fields = ('name', 'description')
+    date_hierarchy = 'date'
