@@ -1,5 +1,5 @@
 #school/urls
-from django.urls import path
+from django.urls import path, include
 from .views import (
     index, dashboard, student_dashboard, student_teachers,
     teacher_dashboard, teacher_schedule, create_assignment,
@@ -52,11 +52,18 @@ urlpatterns = [
     path('notifications/mark-as-read/<uuid:notification_id>/', mark_notification_as_read, name='mark_single_notification_as_read'),
     path('notifications/delete/<uuid:notification_id>/', delete_notification, name='delete_notification'),
 
-    path('inbox/', inbox, name='inbox'),
-    path('inbox/<int:message_id>/', message_detail, name='message_detail'),
-    path('inbox/compose/', compose_message, name='compose_message'),
-    path('inbox/compose/<int:reply_to>/', compose_message, name='reply_message'),
-    path('inbox/<int:message_id>/delete/', delete_message, name='delete_message'),
+    path('messages/', include([
+        path('inbox/', inbox, name='inbox'),
+        path('inbox/<int:message_id>/', message_detail, name='message_detail'),
+        path('inbox/compose/', compose_message, name='compose_message'),
+        path('inbox/compose/<int:reply_to>/', compose_message, name='reply_message'),
+        path('inbox/<int:message_id>/delete/', delete_message, name='delete_message'),
+    ])),
+    # path('inbox/', inbox, name='inbox'),
+    # path('inbox/<int:message_id>/', message_detail, name='message_detail'),
+    # path('inbox/compose/', compose_message, name='compose_message'),
+    # path('inbox/compose/<int:reply_to>/', compose_message, name='reply_message'),
+    # path('inbox/<int:message_id>/delete/', delete_message, name='delete_message'),
 
     path('admin/messages/', admin_message_list, name='admin_message_list'),
     path('admin/messages/<int:message_id>/delete/', delete_message, name='delete_message'),

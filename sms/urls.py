@@ -24,7 +24,7 @@ urlpatterns = [
     path('', include("school.urls")),
     path('student/', include('student.urls')),
     path('authentication/', include('home_auth.urls')),
-    path('messages/', include('school.urls')),
+    # path('messages/', include('school.messages_urls')),
 ]
 
 if settings.DEBUG:

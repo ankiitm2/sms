@@ -118,11 +118,15 @@ def signup_view(request):
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=password,
+                is_student=(role == 'student'),
+                is_teacher=(role == 'teacher')
             )
+            user.set_password(password)
             
             if profile_picture:
                 user.profile_picture = profile_picture
+
+            user.save()
 
             if role == 'student':
                 user.is_student = True
