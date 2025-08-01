@@ -22,3 +22,11 @@ class MessageAdmin(admin.ModelAdmin):
     def recipients_list(self, obj):
         return ", ".join([r.get_full_name() for r in obj.recipients.all()])
     recipients_list.short_description = 'Recipients'
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'head', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('name', 'code', 'head__first_name', 'head__last_name')
+    raw_id_fields = ('head',)

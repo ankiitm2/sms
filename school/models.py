@@ -180,3 +180,25 @@ class MessageAttachment(models.Model):
 
     def filename(self):
         return self.file.name.split('/')[-1]
+    
+
+class Department(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=10, unique=True)
+    description = models.TextField(blank=True, null=True)
+    head = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'is_teacher': True},
+        related_name='headed_departments'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.code})"

@@ -5,7 +5,7 @@ from .views import (
     teacher_dashboard, teacher_schedule, create_assignment,
     grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard, admin_message_list,
     mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count, inbox, message_detail, compose_message, delete_message,
-    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView
+    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, DepartmentListView, DepartmentCreateView, DepartmentUpdateView, DepartmentDeleteView
 )
 
 urlpatterns = [
@@ -24,7 +24,7 @@ urlpatterns = [
     path('teacher/attendance/', take_attendance, name='attendance'),
     path('teacher/profile/', teacher_profile, name='teacher_profile'),
     path('teachers/', teacher_list, name='teacher_list'),
-    path('teacher/profile/view/', teacher_profile_view, name='teacher_profile'),
+    path('teacher/profile/view/', teacher_profile_view, name='teacher_profile_view'),
     path('teacher/profile/edit/', teacher_profile_edit, name='teacher_profile_edit'),
     path('teachers/add/', add_teacher, name='add_teacher'),
     path('teachers/<int:pk>/edit/', edit_teacher, name='edit_teacher'),
@@ -60,4 +60,10 @@ urlpatterns = [
 
     path('admin/messages/', admin_message_list, name='admin_message_list'),
     path('admin/messages/<int:message_id>/delete/', delete_message, name='delete_message'),
+
+    # Department URLs
+    path('departments/', DepartmentListView.as_view(), name='department_list'),
+    path('departments/add/', DepartmentCreateView.as_view(), name='add_department'),
+    path('departments/<int:pk>/edit/', DepartmentUpdateView.as_view(), name='edit_department'),
+    path('departments/<int:pk>/delete/', DepartmentDeleteView.as_view(), name='delete_department'),
 ]

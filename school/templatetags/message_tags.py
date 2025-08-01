@@ -1,3 +1,4 @@
+# school/templatetags/message_tags
 from django import template
 
 register = template.Library()

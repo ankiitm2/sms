@@ -1,3 +1,4 @@
+# school/apps
 from django.apps import AppConfig
 
 class SchoolConfig(AppConfig):

@@ -1,7 +1,7 @@
 # school/views.py
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Notification
+from .models import Notification, Department
 from django.contrib.auth.decorators import login_required
 from home_auth.models import CustomUser
 from django.contrib.auth.hashers import make_password
@@ -11,10 +11,10 @@ from django.views.generic import ListView
 from student.models import Student
 from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .forms import TimetableForm, ExamForm
+from .forms import TimetableForm, ExamForm, DepartmentForm
 from datetime import time
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 import datetime
 from django.utils import timezone
 from django.db.models import Q
@@ -392,10 +392,20 @@ def teacher_profile_edit(request):
             request.user.last_name = request.POST.get('last_name')
             request.user.email = request.POST.get('email')
             request.user.phone = request.POST.get('phone')
-            request.user.department = request.POST.get('department')
             request.user.qualification = request.POST.get('qualification')
             request.user.specialization = request.POST.get('specialization')
             request.user.bio = request.POST.get('bio')
+            
+            # Handle department assignment
+            department_id = request.POST.get('department')
+            if department_id:
+                try:
+                    department = Department.objects.get(id=department_id)
+                    request.user.department = department
+                except Department.DoesNotExist:
+                    messages.error(request, 'Selected department does not exist')
+            else:
+                request.user.department = None
             
             # Handle dates
             joining_date = request.POST.get('joining_date')
@@ -415,8 +425,10 @@ def teacher_profile_edit(request):
         except Exception as e:
             messages.error(request, f'Error updating profile: {str(e)}')
     
+    departments = Department.objects.all()
     context = {
         'user': request.user,
+        'departments': departments,
         'unread_notification_count': Notification.objects.filter(
             user=request.user, 
             is_read=False
@@ -880,3 +892,56 @@ def delete_message(request, message_id):
         return redirect('admin_message_list')
     
     return render(request, 'admin/confirm_delete.html', {'message': message})
+
+class DepartmentListView(LoginRequiredMixin, ListView):
+    model = Department
+    template_name = 'departments/department_list.html'
+    context_object_name = 'departments'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['unread_notification_count'] = Notification.objects.filter(
+            user = self.request.user,
+            is_read = False
+        ).count()
+        return context
+    
+class DepartmentCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Department
+    form_class = DepartmentForm
+    template_name = 'departments/department_form.html'
+    success_url = reverse_lazy('department_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Department created successfully!')
+        return response
+
+class DepartmentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Department
+    form_class = DepartmentForm
+    template_name = 'departments/department_form.html'
+    success_url = reverse_lazy('department_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Department updated successfully!')
+        return response
+
+class DepartmentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Department
+    template_name = 'departments/department_confirm_delete.html'
+    success_url = reverse_lazy('department_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Department deleted successfully!')
+        return super().delete(request, *args, **kwargs)
