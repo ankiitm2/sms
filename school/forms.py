@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from .models import CustomUser
 from django.contrib.auth import get_user_model
 from .models import Department
-from .models import Message, Holiday, MessageAttachment
+from .models import Message, Holiday, MessageAttachment, Subject
 
 User = get_user_model()
 
@@ -37,27 +37,24 @@ class TimetableForm(forms.ModelForm):
     
     class Meta:
         model = Timetable
-        fields = '__all__'
+        fields = ['day', 'start_time', 'end_time', 'subject', 'student_class', 'section', 'classroom', 'color']
         widgets = {
             'day': forms.Select(attrs={'class': 'form-control'}),
             'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'subject': forms.TextInput(attrs={'class': 'form-control'}),
-            'teacher': forms.Select(attrs={'class': 'form-control'}),
+            'subject': forms.Select(attrs={'class': 'form-control'}),
+            'student_class': forms.Select(attrs={'class': 'form-control'}),
+            'section': forms.Select(attrs={'class': 'form-control'}),
             'classroom': forms.TextInput(attrs={'class': 'form-control'}),
-            'color': forms.HiddenInput(),  # We'll handle this separately
+            'color': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
         
-        # Set up teacher queryset
-        self.fields['teacher'].queryset = CustomUser.objects.filter(is_teacher=True)
-        
         if request and request.user.is_teacher:
-            self.fields['teacher'].initial = request.user
-            self.fields['teacher'].disabled = True
+            self.fields['subject'].queryset = Subject.objects.filter(teachers=request.user)
 
 class ExamForm(forms.ModelForm):
     class Meta:
@@ -148,3 +145,39 @@ class HolidayForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type':'date'}),
             'description':forms.Textarea(attrs={'rows':3}),
         }
+
+class SubjectForm(forms.ModelForm):
+    name = forms.CharField(required=True)
+    code = forms.CharField(required=True)
+    student_class = forms.ChoiceField(choices=CLASS_CHOICES, required=True)
+    section = forms.ChoiceField(choices=SECTION_CHOICES, required=True)
+    department = forms.ModelChoiceField(queryset=Department.objects.all(), required=True)
+
+    class Meta:
+        model = Subject
+        fields = ['name', 'code', 'description', 'department', 'teachers', 'student_class', 'section']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'teachers': forms.SelectMultiple(attrs={'class': 'select2'}),
+            'department': forms.Select(attrs={'class': 'form-control'})
+        }
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.request and self.request.user.is_teacher:
+            # Limit department choices to teacher's department
+            if self.request.user.department:
+                self.fields['department'].queryset = Department.objects.filter(
+                    id=self.request.user.department.id
+                )
+            else:
+                self.fields['department'].queryset = Department.objects.none()
+                
+            # Auto-assign current teacher and hide field
+            self.fields['teachers'].queryset = CustomUser.objects.filter(
+                id=self.request.user.id
+            )
+            self.fields['teachers'].initial = [self.request.user]
+            self.fields['teachers'].widget = forms.HiddenInput()

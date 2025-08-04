@@ -1,0 +1,220 @@
+{% extends 'Home/base.html' %}
+{% load static %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h3 class="page-title">
+                        {% if object %}Edit{% else %}Add{% endif %} Subject
+                    </h3>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'subject_list' %}">Subjects</a></li>
+                        <li class="breadcrumb-item active">
+                            {% if object %}Edit{% else %}Add{% endif %} Subject
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Subject Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <div class="row">
+                                <!-- Basic Information -->
+                                <div class="col-12">
+                                    <h5 class="form-title"><span>Basic Information</span></h5>
+                                </div>
+                                
+                                <!-- Name Field -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>{{ form.name.label }} <span class="text-danger">*</span></label>
+                                        {{ form.name }}
+                                        <div class="invalid-feedback">
+                                            Please provide a subject name.
+                                        </div>
+                                        {{ form.name.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Code Field -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>{{ form.code.label }} <span class="text-danger">*</span></label>
+                                        {{ form.code }}
+                                        <div class="invalid-feedback">
+                                            Please provide a subject code.
+                                        </div>
+                                        {{ form.code.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Description Field -->
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label>{{ form.description.label }}</label>
+                                        {{ form.description }}
+                                        {{ form.description.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Class Information -->
+                                <div class="col-12">
+                                    <h5 class="form-title"><span>Class Information</span></h5>
+                                </div>
+                                
+                                <!-- Class Field -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Class <span class="text-danger">*</span></label>
+                                        <select name="student_class" class="form-control select" required>
+                                            <option value="">Select Class</option>
+                                            {% for value, display in form.fields.student_class.choices %}
+                                                <option value="{{ value }}" {% if form.student_class.value == value %}selected{% endif %}>
+                                                    {{ display }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a class.
+                                        </div>
+                                        {{ form.student_class.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Section Field -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>Section <span class="text-danger">*</span></label>
+                                        <select name="section" class="form-control select" required>
+                                            <option value="">Select Section</option>
+                                            {% for value, display in form.fields.section.choices %}
+                                                <option value="{{ value }}" {% if form.section.value == value %}selected{% endif %}>
+                                                    {{ display }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a section.
+                                        </div>
+                                        {{ form.section.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Department Field -->
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>{{ form.department.label }} <span class="text-danger">*</span></label>
+                                        {{ form.department }}
+                                        <div class="invalid-feedback">
+                                            Please select a department.
+                                        </div>
+                                        {{ form.department.errors }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Teachers Field (Admin Only) -->
+                                {% if user.is_admin %}
+                                <div class="col-12 col-sm-6">
+                                    <div class="form-group">
+                                        <label>{{ form.teachers.label }} <span class="text-danger">*</span></label>
+                                        {{ form.teachers }}
+                                        <div class="invalid-feedback">
+                                            Please select at least one teacher.
+                                        </div>
+                                        {{ form.teachers.errors }}
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Submit Button -->
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> {% if object %}Update{% else %}Create{% endif %} Subject
+                                    </button>
+                                    <a href="{% url 'subject_list' %}" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this script for form validation -->
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+// Initialize select2
+$(document).ready(function() {
+    $('.select').select2({
+        placeholder: "Select an option",
+        allowClear: true
+    });
+});
+</script>
+
+<style>
+/* Custom styling for the form */
+.card {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+.form-title {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-control:invalid:focus ~ .invalid-feedback {
+    display: block;
+}
+.form-control:required, .select2-selection:required {
+    border-left: 3px solid #fd7e14;
+}
+.btn i {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}

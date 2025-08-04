@@ -5,7 +5,7 @@ from .views import (
     teacher_dashboard, teacher_schedule, create_assignment,
     grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard, admin_message_list,
     mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count, inbox, message_detail, compose_message, delete_message,
-    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, DepartmentListView, DepartmentCreateView, DepartmentUpdateView, DepartmentDeleteView, HolidayListView, HolidayCreateView, HolidayUpdateView, HolidayDeleteView
+    TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, DepartmentListView, DepartmentCreateView, DepartmentUpdateView, DepartmentDeleteView, HolidayListView, HolidayCreateView, HolidayUpdateView, HolidayDeleteView, SubjectListView, SubjectUpdateView, SubjectCreateView, SubjectDeleteView
 )
 
 urlpatterns = [
@@ -74,4 +74,10 @@ urlpatterns = [
     path('holidays/add/', HolidayCreateView.as_view(), name='add_holiday'),
     path('holidays/<int:pk>/edit/', HolidayUpdateView.as_view(), name='edit_holiday'),
     path('holidays/<int:pk>/delete', HolidayDeleteView.as_view(), name='delete_holiday'),
+
+    # Subject URLs
+    path('subjects/', SubjectListView.as_view(), name='subject_list'),
+    path('subjects/add/', SubjectCreateView.as_view(), name='add_subject'),
+    path('subjects/<int:pk>/edit/', SubjectUpdateView.as_view(), name='edit_subject'),
+    path('subjects/<int:pk>/delete/', SubjectDeleteView.as_view(), name='delete_subject'),
 ]

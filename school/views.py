@@ -19,8 +19,8 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
-from .models import Message, MessageAttachment, Holiday
-from .forms import MessageForm, HolidayForm
+from .models import Message, MessageAttachment, Holiday, Subject
+from .forms import MessageForm, HolidayForm, SubjectForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.urls import reverse
@@ -595,27 +595,46 @@ class TimetableView(LoginRequiredMixin, ListView):
     
 class TimetableCalendarView(LoginRequiredMixin, View):
     def get(self, request):
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         time_slots = [time(h, 0).strftime('%H:%M') for h in range(8, 18)]  # 8AM to 6PM
         
-        if request.user.is_student:
-            try:
+        # Initialize a complete data structure
+        timetable_data = {
+            day: {time_slot: None for time_slot in time_slots}
+            for day in days
+        }
+        
+        # Get appropriate timetable entries
+        try:
+            if request.user.is_student:
                 student = Student.objects.get(user=request.user)
-                timetable = Timetable.objects.filter(
+                entries = Timetable.objects.filter(
                     student_class=student.student_class,
                     section=student.section
                 ).order_by('day', 'start_time')
-            except Student.DoesNotExist:
-                timetable = []
-        elif request.user.is_teacher:
-            timetable = Timetable.objects.filter(teacher=request.user).order_by('day', 'start_time')
-        else:
-            timetable = Timetable.objects.all().order_by('day', 'start_time')
+            elif request.user.is_teacher:
+                entries = Timetable.objects.filter(
+                    teacher=request.user
+                ).order_by('day', 'start_time')
+            else:  # admin
+                entries = Timetable.objects.all().order_by('day', 'start_time')
+            
+            # Populate the timetable_data structure
+            for entry in entries:
+                day = entry.day
+                time_key = entry.start_time.strftime('%H:%M')
+                if day in timetable_data and time_key in timetable_data[day]:
+                    timetable_data[day][time_key] = entry
+                    
+        except Student.DoesNotExist:
+            messages.error(request, "Student profile not found")
+            entries = []
         
         context = {
             'days': days,
             'time_slots': time_slots,
-            'entries': timetable,
+            'timetable_data': timetable_data,  # Structured data for template
+            'entries': entries,  # Original queryset for debugging
             'user': request.user,
             'unread_notification_count': Notification.objects.filter(
                 user=request.user, 
@@ -993,4 +1012,95 @@ class HolidayDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     
     def delete(self, request, *args, **kwargs):
         messages.success(request, 'Holiday deleted successfully!')
+        return super().delete(request, *args, **kwargs)
+    
+class SubjectListView(LoginRequiredMixin, ListView):
+    model = Subject
+    template_name = 'subjects/subject_list.html'
+    context_object_name = 'subjects'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        user = self.request.user
+    
+        if user.is_teacher:
+            return queryset.filter(teachers=user).order_by('name')
+        elif user.is_admin:
+            return queryset.all().order_by('name')
+        elif user.is_student:
+            try:
+                student = Student.objects.get(user=user)
+                # Query subjects directly by class and section
+                return queryset.filter(
+                    student_class=student.student_class,
+                    section=student.section
+                ).order_by('name')
+            except Student.DoesNotExist:
+                messages.error(self.request, "Student profile not found. Please complete your profile.")
+                return queryset.none()
+        return queryset.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        if user.is_student:
+            try:
+                student = Student.objects.get(user=user)
+                context['student_class'] = student.student_class
+                context['student_section'] = student.section
+            except Student.DoesNotExist:
+                pass
+                
+        context['unread_notification_count'] = Notification.objects.filter(
+            user=user, 
+            is_read=False
+        ).count()
+        return context
+
+
+class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = Subject
+    form_class = SubjectForm
+    template_name = 'subjects/subject_form.html'
+    success_url = reverse_lazy('subject_list')
+
+    def test_func(self):
+        return self.request.user.is_admin or self.request.user.is_teacher
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        
+        # Automatically assign current teacher if user is teacher
+        if self.request.user.is_teacher:
+            self.object.teachers.add(self.request.user)
+            self.object.save()
+            
+        messages.success(self.request, 'Subject created successfully!')
+        return response
+    
+class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Subject
+    form_class = SubjectForm
+    template_name = 'subjects/subject_form.html'
+    success_url = reverse_lazy('subject_list')
+
+    def test_func(self):
+        return self.request.user.is_admin or self.request.user in self.get_object().teachers.all()
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, 'Subject updated successfully!')
+        return response
+    
+class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Subject
+    template_name = 'subjects/subject_confirm_delete.html'
+    success_url = reverse_lazy('subject_list')
+
+    def test_func(self):
+        return self.request.user.is_admin
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Subject deleted successfully!')
         return super().delete(request, *args, **kwargs)

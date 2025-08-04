@@ -84,6 +84,11 @@ class Student(models.Model):
             
         super().save(*args, **kwargs)
 
+    def get_student_image_url(self):
+        if self.student_image and hasattr(self.student_image, 'url'):
+            return self.student_image.url
+        return '/static/img/profiles/avatar-02.jpg'
+
     def delete(self, *args, **kwargs):
         """Delete image file when student record is deleted"""
         if self.student_image:

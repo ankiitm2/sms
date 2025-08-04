@@ -1,3 +1,4 @@
+# sms/settings.py
 """
 Django settings for sms project.
 
@@ -32,7 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'home_auth',
+    'home_auth.apps.HomeAuthConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

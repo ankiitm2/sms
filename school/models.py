@@ -68,48 +68,6 @@ class StudentTeacherRelationship(models.Model):
         return f"{self.student} - {self.teacher} ({self.subject})"
     
 
-class Timetable(models.Model):
-    DAY_CHOICES = [
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday'),
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-    ]
-    
-    COLOR_CHOICES = [
-        ('#FF5733', 'Red'),
-        ('#33FF57', 'Green'),
-        ('#3357FF', 'Blue'),
-        ('#F333FF', 'Purple'),
-        ('#FF33F3', 'Pink'),
-        ('#33FFF5', 'Teal'),
-    ]
-    
-    color = models.CharField(max_length=7, choices=COLOR_CHOICES, default='#3357FF')
-    day = models.CharField(max_length=10, choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    subject = models.CharField(max_length=100)
-    teacher = models.ForeignKey(
-        CustomUser, 
-        on_delete=models.CASCADE, 
-        limit_choices_to={'is_teacher': True}
-    )
-    student_class = models.CharField(max_length=50)
-    section = models.CharField(max_length=10)
-    classroom = models.CharField(max_length=50)
-    
-    class Meta:
-        unique_together = ('day', 'start_time', 'student_class', 'section')
-        ordering = ['day', 'start_time']
-    
-    def __str__(self):
-        return f"{self.day} {self.start_time}-{self.end_time}: {self.subject}"
-    
-
 class Exam(models.Model):
     name = models.CharField(max_length=100)
     subject = models.CharField(max_length=100)
@@ -218,3 +176,71 @@ class Holiday(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.date})"
+    
+
+class Subject(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField(blank=True, null=True)
+    student_class = models.CharField(max_length=50, blank=True, null=True)
+    section = models.CharField(max_length=10, blank=True, null=True)
+    department = models.ForeignKey(
+        'Department',
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='subjects'
+    )
+    timetable = models.ForeignKey(
+        'Timetable',
+        on_delete=models.CASCADE,
+        related_name='subjects',
+        null=True,
+        blank=True
+    )
+    teachers = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        limit_choices_to={'is_teacher': True},
+        related_name='subjects_taught',
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+        
+    def __str__(self):
+        return f"{self.name} ({self.code})"
+    
+
+class Timetable(models.Model):
+    CLASS_DAYS = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+        ('Saturday', 'Saturday'),
+    ]
+
+    student_class = models.CharField(max_length=50)
+    section = models.CharField(max_length=10)
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.CASCADE,
+        related_name='timetable_entries'
+    )
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='timetable_teacher'
+    )
+    day = models.CharField(max_length=10, choices=CLASS_DAYS)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    classroom = models.CharField(max_length=50, blank=True, null=True)
+    color = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.subject} - {self.student_class} {self.section} ({self.day})"

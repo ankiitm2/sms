@@ -7,7 +7,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.crypto import get_random_string
 from school.models import Notification
-from .models import Timetable
+from school.models import Timetable
 from django.contrib.auth import get_user_model
 from django.views import View
 from django.utils import timezone

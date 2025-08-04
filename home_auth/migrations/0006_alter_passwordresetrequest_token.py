@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home_auth', '0004_alter_passwordresetrequest_token'),
+        ('home_auth', '0005_alter_passwordresetrequest_token'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='passwordresetrequest',
             name='token',
-            field=models.CharField(default='YiyNlnfy7X49JASB2nW7DJPCiXYeU9zX', editable=False, max_length=32),
+            field=models.CharField(default='VEnrR8OnWTI0XciwOTow4aAMuUo64tdp', editable=False, max_length=32),
         ),
     ]

@@ -23,10 +23,9 @@
                 <div class="profile-header hover-float px-3">
                     <div class="row align-items-center">
                         <div class="col-auto profile-image">
-                            <img src="{{ student.student_image.url|default:'/static/img/profiles/avatar-02.jpg' }}" 
-                                 class="rounded-circle shadow-sm hover-scale" 
-                                 alt="Student Image"
-                                 onerror="this.src='{% static 'img/profiles/avatar-02.jpg' %}'">
+                            <img src="{% if student.student_image %}{{ student.student_image.url }}{% else %}{% static 'img/profiles/avatar-02.jpg' %}{% endif %}" 
+     class="rounded-circle shadow-sm hover-scale" 
+     alt="Student Image">
                         </div>
                         <div class="col ml-md-n2 profile-user-info">
                             <h4 class="user-name mb-0">{{ student.first_name }} {{ student.last_name }}</h4>

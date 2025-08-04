@@ -166,16 +166,24 @@
                         </ul>
                      </li>
                      {% endif %}
-                     <li class="submenu">
+
+                     {% if user.is_student %}
+                     <li class="{% if current_url_name == 'subject_list' or current_url_name == 'dashboard' %}active{% endif %}">
+                       <a href="{% url 'subject_list' %}"><i class="fas fa-book-reader"></i> <span>Subjects</span></a>
+                     </li>
+                     {% elif user.is_teacher %}
+                     <li class="submenu {% if 'subject' in request.path %}active{% endif %}">
                         <a href="#"><i class="fas fa-book-reader"></i> <span> Subjects</span> <span class="menu-arrow"></span></a>
                         <ul>
-                           <li><a href="subjects.html">Subject List</a></li>
-                           <li><a href="add-subject.html">Subject Add</a></li>
-                           <li><a href="edit-subject.html">Subject Edit</a></li>
+                           <li class="{% if current_url_name == 'subject_list' %}active{% endif %}"><a href="{% url 'subject_list' %}">Subject List</a></li>
+                              <li class="{% if current_url_name == 'add_subject' %}active{% endif %}">
+                                 <a href="{% url 'add_subject' %}">Add Subject</a>
+                              </li>
                         </ul>
                      </li>
-                     <li class="{% if current_url_name == 'time_table' or current_url_name == 'dashboard' %}active{% endif %}">
-                       <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
+                     {% endif %}
+                        <li class="{% if current_url_name == 'time_table' or current_url_name == 'dashboard' %}active{% endif %}">
+                           <a href="{% url 'time_table' %}"><i class="fas fa-table"></i> <span>Time Table</span></a>
                      </li>
                      <li class="menu-title">
                         <span>Management</span>
@@ -215,7 +223,7 @@
                            <li><a href="{% url 'forgot-password' %}">Forgot Password</a></li>
                            <li><a href="error-404.html">Error Page</a></li>
                         </ul>
-                     </li>
+                     </li> 
                      <li>
                         <a href="blank-page.html"><i class="fas fa-file"></i> <span>Blank Page</span></a>
                      </li> -->

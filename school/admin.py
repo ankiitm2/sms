@@ -37,3 +37,15 @@ class HolidayAdmin(admin.ModelAdmin):
     list_filter = ('recurring', 'date')
     search_fields = ('name', 'description')
     date_hierarchy = 'date'
+
+
+@admin.register(Subject)
+class SubjectAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'department', 'teachers_list')
+    list_filter = ('department',)
+    search_fields = ('name', 'code', 'department__name')
+    filter_horizontal = ('teachers',)
+
+    def teachers_list(self, obj):
+        return ", ".join([t.get_full_name() for t in obj.teachers.all()])
+    teachers_list.short_description = 'Teachers'

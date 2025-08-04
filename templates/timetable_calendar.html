@@ -1,5 +1,6 @@
 {% extends 'Home/base.html' %}
 {% load static %}
+{% load timetable_tags %}
 
 {% block body %}
 <div class="page-wrapper">
@@ -41,12 +42,26 @@
                                         <td>{{ time_slot }}</td>
                                         {% for day in days %}
                                             <td>
-                                                {% for entry in entries %}
-                                                    {% if entry.day == day and entry.start_time|stringformat:"H:i" == time_slot %}
-                                                        {{ entry.subject }}<br>
-                                                        {{ entry.teacher.get_full_name }}
+                                                {% with entry=timetable_data|get_item:day|get_item:time_slot %}
+                                                    {% if entry %}
+                                                    <div class="timetable-entry" style="background-color: {{ entry.color }};">
+                                                        <strong>{{ entry.subject }}</strong><br>
+                                                        {{ entry.teacher.get_full_name }}<br>
+                                                        {{ entry.student_class }}{{ entry.section }}<br>
+                                                        {{ entry.classroom }}
+                                                        {% if user.is_admin or user == entry.teacher %}
+                                                        <div class="timetable-actions">
+                                                            <a href="{% url 'edit_timetable' entry.id %}" class="text-white">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <a href="{% url 'delete_timetable' entry.id %}" class="text-white ml-2">
+                                                                <i class="fas fa-trash"></i>
+                                                            </a>
+                                                        </div>
+                                                        {% endif %}
+                                                    </div>
                                                     {% endif %}
-                                                {% endfor %}
+                                                {% endwith %}
                                             </td>
                                         {% endfor %}
                                     </tr>
