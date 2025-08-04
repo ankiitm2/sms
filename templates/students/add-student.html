@@ -1,189 +1,583 @@
 {% extends 'Home/base.html' %}
 {% load static %}
-<head>
-      <link rel="stylesheet" href="{% static '../../../../static/css/style.css' %}">
-</head>
+
 {% block body %}
-         <div class="page-wrapper">
-            <div class="content container-fluid">
-               <div class="page-header">
-                  <div class="row align-items-center">
-                     <div class="col">
-                        <h3 class="page-title">Add Students</h3>
-                        <ul class="breadcrumb">
-                           <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
-                           <li class="breadcrumb-item active">Add Students</li>
-                        </ul>
-                     </div>
-                  </div>
-               </div>
-               <div class="row">
-                  <div class="col-sm-12">
-                     <div class="card">
-                        <div class="card-body">
-                           <form method="POST" enctype="multipart/form-data">
-                              {% csrf_token %}
-                              <div class="row">
-                                 <div class="col-12">
-                                    <h5 class="form-title"><span>Student Information</span></h5>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>First Name</label>
-                                       <input type="text" class="form-control" name="first_name" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Last Name</label>
-                                       <input type="text" class="form-control" name = "last_name" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Student Id</label>
-                                       <input type="text" class="form-control" name = "student_id" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Gender</label>
-                                       <select class="form-control" name="gender" required>
-                                          <option value="">Select Gender</option>
-                                          <option value="Female">Female</option>
-                                          <option value="Male">Male</option>
-                                          <option value="Others">Others</option>
-                                       </select>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Date of Birth</label>
-                                       <div>
-                                          <input type="date" class="form-control" name="date_of_birth" required>
-                                       </div>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Course</label>
-                                       <input type="text" class="form-control" name="student_class" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Religion</label>
-                                       <input type="text" class="form-control" name="religion" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Joining Date</label>
-                                       <div>
-                                          <input type="date" class="form-control" name="joining_date" required>
-                                       </div>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Mobile Number</label>
-                                       <input type="text" class="form-control" name="mobile_number" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Admission Number</label>
-                                       <input type="text" class="form-control" name="admission_number" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Batch</label>
-                                       <input type="text" class="form-control" name="section" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Student Image</label>
-                                       <input type="file" class="form-control" name="student_image">
-                                    </div>
-                                 </div>
-                                 <div class="col-12">
-                                    <h5 class="form-title"><span>Parent Information</span></h5>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Father's Name</label>
-                                       <input type="text" class="form-control" name="father_name" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Father's Occupation</label>
-                                       <input type="text" class="form-control" name="father_occupation" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Father's Mobile</label>
-                                       <input type="text" class="form-control" name="father_mobile" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Father's Email</label>
-                                       <input type="email" class="form-control" name="father_email" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Mother's Name</label>
-                                       <input type="text" class="form-control" name="mother_name" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Mother's Occupation</label>
-                                       <input type="text" class="form-control" name="mother_occupation" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Mother's Mobile</label>
-                                       <input type="text" class="form-control" name="mother_mobile" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Mother's Email</label>
-                                       <input type="email" class="form-control" name="mother_email" required>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Present Address</label>
-                                       <textarea class="form-control" name="present_address" required></textarea>
-                                    </div>
-                                 </div>
-                                 <div class="col-12 col-sm-6">
-                                    <div class="form-group">
-                                       <label>Permanent Address</label>
-                                       <textarea class="form-control" name="permanent_address" required></textarea>
-                                    </div>
-                                 </div>
-                                 <div class="col-12">
-                                    <button type="submit" class="btn btn-primary">Submit</button>
-                                 </div>
-                              </div>
-                           </form>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+<div class="page-wrapper">
+    <div class="content container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h5 class="page-title">
+                        <i class="fas fa-user-graduate mr-2"></i>Add Students
+                    </h5>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Students</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
-         </div>
-      </div>
-      
-   </body>
-</html>
+        </div>
+
+        <!-- Main Form -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            
+                            <!-- Student Information Section -->
+                            <div class="section-block mb-4">
+                                <h6 class="section-title"><i class="fas fa-user-circle mr-2"></i>Student Information</h6>
+                                <div class="row g-3">
+                                    <!-- First Name -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="first_name" id="first_name" required>
+                                            <label for="first_name">First Name <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide first name</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Last Name -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="last_name" id="last_name" required>
+                                            <label for="last_name">Last Name <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide last name</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Student ID -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="student_id" id="student_id" required>
+                                            <label for="student_id">Student ID <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide student ID</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Gender -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <select class="form-control" name="gender" id="gender" required>
+                                                <option value=""></option>
+                                                <option value="Female">Female</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                            <label for="gender">Gender <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please select gender</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Date of Birth -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="date" class="form-control" name="date_of_birth" id="date_of_birth" required>
+                                            <label for="date_of_birth">Date of Birth <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please select date of birth</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Course -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="student_class" id="student_class" required>
+                                            <label for="student_class">Course <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide course</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Religion -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="religion" id="religion" required>
+                                            <label for="religion">Religion <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide religion</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Joining Date -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="date" class="form-control" name="joining_date" id="joining_date" required>
+                                            <label for="joining_date">Joining Date <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please select joining date</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mobile Number -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="mobile_number" id="mobile_number" required>
+                                            <label for="mobile_number">Mobile Number <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide mobile number</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Admission Number -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="admission_number" id="admission_number" required>
+                                            <label for="admission_number">Admission Number <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide admission number</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Batch -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="section" id="section" required>
+                                            <label for="section">Batch <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide batch</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Student Image -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Student Image</label>
+                                            <div class="custom-file">
+                                                <input type="file" class="custom-file-input" name="student_image" id="student_image">
+                                                <label class="custom-file-label" for="student_image">Choose file</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Parent Information Section -->
+                            <div class="section-block mb-4">
+                                <h6 class="section-title"><i class="fas fa-users mr-2"></i>Parent Information</h6>
+                                <div class="row g-3">
+                                    <!-- Father's Name -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="father_name" id="father_name" required>
+                                            <label for="father_name">Father's Name <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide father's name</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Father's Occupation -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="father_occupation" id="father_occupation" required>
+                                            <label for="father_occupation">Father's Occupation <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide father's occupation</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Father's Mobile -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="father_mobile" id="father_mobile" required>
+                                            <label for="father_mobile">Father's Mobile <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide father's mobile</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Father's Email -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="email" class="form-control" name="father_email" id="father_email" required>
+                                            <label for="father_email">Father's Email <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide valid email</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mother's Name -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="mother_name" id="mother_name" required>
+                                            <label for="mother_name">Mother's Name <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide mother's name</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mother's Occupation -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="mother_occupation" id="mother_occupation" required>
+                                            <label for="mother_occupation">Mother's Occupation <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide mother's occupation</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mother's Mobile -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="text" class="form-control" name="mother_mobile" id="mother_mobile" required>
+                                            <label for="mother_mobile">Mother's Mobile <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide mother's mobile</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mother's Email -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <input type="email" class="form-control" name="mother_email" id="mother_email" required>
+                                            <label for="mother_email">Mother's Email <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide valid email</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Present Address -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <textarea class="form-control" name="present_address" id="present_address" required></textarea>
+                                            <label for="present_address">Present Address <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide present address</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Permanent Address -->
+                                    <div class="col-md-6">
+                                        <div class="form-group floating-label">
+                                            <textarea class="form-control" name="permanent_address" id="permanent_address" required></textarea>
+                                            <label for="permanent_address">Permanent Address <span class="text-danger">*</span></label>
+                                            <div class="invalid-feedback">Please provide permanent address</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Form Actions -->
+                            <div class="form-actions text-end">
+                                <a href="{% url 'student_list' %}" class="btn btn-light mr-2">
+                                    <i class="fas fa-times mr-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i> Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    // Form validation
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.forEach.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Initialize Select2 for select elements
+    $(document).ready(function () {
+        $('select').select2({
+            placeholder: "Select an option",
+            allowClear: true,
+            width: '100%',
+            theme: 'bootstrap-5',
+            minimumResultsForSearch: 5
+        });
+
+        // Custom file input
+        $('.custom-file-input').on('change', function() {
+            var fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').html(fileName);
+        });
+    });
+</script>
+
+<!-- Custom Styling -->
+<style>
+/* Base Styles */
+:root {
+    --primary-color: #4e73df;
+    --primary-hover: #2e59d9;
+    --secondary-color: #858796;
+    --light-gray: #f8f9fc;
+    --border-color: #d1d3e2;
+    --border-radius: 0.35rem;
+    --box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    --transition: all 0.3s ease;
+}
+
+/* Form Elements */
+.form-label {
+    font-weight: 600;
+    color: #5a5c69;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control,
+.form-select,
+.select2-selection,
+textarea.form-control,
+.custom-file-input {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: #6e707e;
+    transition: var(--transition);
+    height: calc(2.25rem + 2px);
+}
+
+.form-control:focus,
+.form-select:focus,
+.select2-selection:focus,
+textarea.form-control:focus,
+.custom-file-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    outline: 0;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Floating Label */
+.form-group.floating-label {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-group.floating-label label {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    color: #6c757d;
+    transition: var(--transition);
+    pointer-events: none;
+    font-size: 0.95rem;
+    background-color: transparent;
+    padding: 0 5px;
+}
+
+.form-group.floating-label .form-control:focus + label,
+.form-group.floating-label .form-control:not(:placeholder-shown) + label,
+.form-group.floating-label select:focus + label,
+.form-group.floating-label select:not([value=""]) + label,
+.form-group.floating-label textarea:focus + label,
+.form-group.floating-label textarea:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 10px;
+    font-size: 0.8rem;
+    /* color: var(--primary-color); */
+    background-color: #fff;
+    z-index: 1;
+}
+
+/* Date Inputs */
+input[type="date"].form-control {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* File Input */
+.custom-file {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    margin-bottom: 0;
+}
+
+.custom-file-input {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    margin: 0;
+    opacity: 0;
+}
+
+.custom-file-label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    height: calc(2.25rem + 2px);
+    padding: 0.5rem 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #6e707e;
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.custom-file-label::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: block;
+    height: calc(2.25rem + 2px);
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #6e707e;
+    content: "Browse";
+    background-color: #eaecf4;
+    border-left: 1px solid var(--border-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+/* Select2 Customization */
+.select2-container--bootstrap-5 .select2-selection {
+    height: calc(2.25rem + 2px);
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+
+.select2-container--bootstrap-5 .select2-selection--single {
+    height: calc(2.25rem + 2px);
+}
+
+.select2-container--bootstrap-5 .select2-selection__arrow {
+    height: calc(2.25rem + 2px);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--selected {
+    background-color: var(--light-gray);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Section Blocks */
+.section-block {
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #4e73df;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    transition: var(--transition);
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-light {
+    background-color: #f8f9fc;
+    border-color: #d1d3e2;
+    color: #5a5c69;
+}
+
+.btn-light:hover {
+    background-color: #e2e6ea;
+    border-color: #d1d3e2;
+}
+
+/* Validation */
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 80%;
+    color: #e74a3b;
+}
+
+.was-validated .form-control:invalid,
+.was-validated .form-control:invalid:focus,
+.was-validated .form-select:invalid,
+.was-validated .form-select:invalid:focus {
+    border-color: #e74a3b;
+}
+
+.was-validated .form-control:invalid ~ .invalid-feedback,
+.was-validated .form-select:invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Required Field Indicator */
+.text-danger {
+    color: #e74a3b;
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .section-block {
+        padding: 1rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}
