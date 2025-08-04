@@ -1969,6 +1969,36 @@ footer p {
 	13. Notifications
 -----------------------*/
 
+/* Toast Notifications */
+.toast {
+    min-width: 300px;
+    margin-bottom: 1rem;
+    opacity: 1;
+}
+
+.toast-body {
+    padding: 1rem;
+}
+
+/* Animation for toast */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(20px); }
+}
+
+.toast.show {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.toast.hiding {
+    animation: fadeOut 0.3s ease-in;
+}
+
 /* Add to your CSS file */
 .notification-list {
     max-height: 400px;
