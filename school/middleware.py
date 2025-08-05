@@ -1,4 +1,4 @@
-# school/middleware
+# school/middleware.py
 from django.http import HttpResponseForbidden
 
 class RoleAccessMiddleware:
@@ -6,19 +6,28 @@ class RoleAccessMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # Skip for auth URLs
+        if request.path.startswith(('/accounts/', '/authentication/')):
+            return self.get_response(request)
+            
         response = self.get_response(request)
         return response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        # Skip middleware for auth pages
+        if request.path.startswith(('/accounts/', '/authentication/')):
+            return None
+            
         if not request.user.is_authenticated:
             return None
-
-        # Check if user is trying to access a dashboard not meant for their role
-        if 'student_dashboard' in request.path and not request.user.is_student:
-            return HttpResponseForbidden()
-        if 'teacher_dashboard' in request.path and not request.user.is_teacher:
-            return HttpResponseForbidden()
-        if 'admin_dashboard' in request.path and not request.user.is_admin:
-            return HttpResponseForbidden()
-        
+            
+        # Default all authenticated users to student dashboard if no role is set
+        if 'dashboard' in request.path:
+            if not any([request.user.is_teacher, request.user.is_student, request.user.is_admin]):
+                request.user.is_student = True  # Auto-assign student role
+                request.user.save()
+                from django.urls import reverse
+                from django.shortcuts import redirect
+                return redirect('student_dashboard')
+                
         return None

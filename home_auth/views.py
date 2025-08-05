@@ -176,6 +176,7 @@ def login_view(request):
                 return redirect('student_dashboard')
             elif user.is_admin:
                 return redirect('admin_dashboard')
+            return redirect('dashboard')
             
         else:
             messages.error(request, 'Invalid credentials')

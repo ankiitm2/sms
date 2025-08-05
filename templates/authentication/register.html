@@ -1,5 +1,6 @@
 <!-- templates/authentication/register.html -->
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,8 +111,9 @@
 
                         <div class="social-login">
                             <span>Register with</span>
-                            <a href="#" class="facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="google"><i class="fab fa-google"></i></a>
+                            <a href="{% provider_login_url 'google' process='signup' %}" class="google">
+        <i class="fab fa-google"></i>
+    </a>
                         </div>
 
                         <div class="text-center dont-have">Already have an account? 

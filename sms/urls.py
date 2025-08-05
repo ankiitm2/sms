@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include("school.urls")),
     path('student/', include('student.urls')),
     path('authentication/', include('home_auth.urls')),
+    path('accounts/', include('allauth.urls')),
     # path('messages/', include('school.messages_urls')),
 ]
 

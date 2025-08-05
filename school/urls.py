@@ -2,7 +2,7 @@
 from django.urls import path, include
 from .views import (
     index, dashboard, student_dashboard, student_teachers,
-    teacher_dashboard, teacher_schedule, create_assignment,
+    teacher_dashboard, teacher_schedule, create_assignment, auth_status,
     grade_submissions, take_attendance, teacher_profile, teacher_profile_view, teacher_profile_edit, teacher_list, add_teacher, edit_teacher, admin_dashboard, admin_message_list,
     mark_notification_as_read, get_unread_notifications, delete_notification, all_notifications, unread_notification_count, inbox, message_detail, compose_message, delete_message,
     TimetableView, TimetableCreateView, TimetableUpdateView, TimetableCalendarView, TimetableDeleteView, ExamListView, ExamCreateView, ExamUpdateView, ExamDeleteView, DepartmentListView, DepartmentCreateView, DepartmentUpdateView, DepartmentDeleteView, HolidayListView, HolidayCreateView, HolidayUpdateView, HolidayDeleteView, SubjectListView, SubjectUpdateView, SubjectCreateView, SubjectDeleteView
@@ -11,6 +11,7 @@ from .views import (
 urlpatterns = [
     path('', index, name="index"),
     path('dashboard/', dashboard, name='dashboard'),
+    path('auth-status/', auth_status, name='auth_status'),
     
     # Student URLs
     path('student/dashboard/', student_dashboard, name='student_dashboard'),

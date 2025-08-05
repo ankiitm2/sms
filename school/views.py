@@ -101,24 +101,33 @@ def unread_notification_count(request):
         return JsonResponse({'count': count})
     return JsonResponse({'count': 0})
 
+def auth_status(request):
+    return JsonResponse({
+        'authenticated': request.user.is_authenticated,
+        'username': getattr(request.user, 'username', None),
+        'is_student': getattr(request.user, 'is_student', False),
+        'is_teacher': getattr(request.user, 'is_teacher', False),
+        'is_admin': getattr(request.user, 'is_admin', False),
+        'session': dict(request.session),
+    })
+
 @login_required
 def dashboard(request):
-    if request.user.is_admin:
-        return redirect('admin_dashboard')
-    elif request.user.is_teacher:
-        return redirect('teacher_dashboard')
-    elif request.user.is_student:
-        unread_notifications = request.user.notifications.filter(
-        is_read=False
-    ).order_by('-created_at')[:5]
-        
-        context = {
-        'unread_notifications': unread_notifications,
-        'unread_count': unread_notifications.count()
-    }
-        return render(request, "students/student-dashboard.html", context)
-    else:
+    if not request.user.is_authenticated:
         return redirect('login')
+    
+    # Default to student dashboard if no role is set
+    if not any([request.user.is_teacher, request.user.is_student, request.user.is_admin]):
+        request.user.is_student = True
+        request.user.save()
+    
+    if request.user.is_teacher:
+        return redirect('teacher_dashboard')
+    elif request.user.is_admin:
+        return redirect('admin_dashboard')
+    
+    # Default case (including is_student=True)
+    return redirect('student_dashboard')
     
 @login_required
 def student_dashboard(request):
