@@ -1,3 +1,4 @@
+# sms/wsgi.py
 """
 WSGI config for sms project.
 

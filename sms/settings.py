@@ -27,8 +27,12 @@ SECRET_KEY = 'django-insecure-53sv#y*948pzgyo(d*jo--!lv^f%$+wyil@8!4iv5*x3)-cgu!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'student-management-portal-gnm3.onrender.com',
+    'localhost',
+    '127.0.0.1'
+]
 
 # Application definition
 
@@ -196,24 +200,3 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'ssurajharma@gmail.com'
 EMAIL_HOST_PASSWORD = 'nyxh rzuz snlf yrvv' 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-        'allauth': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        },
-    },
-}
