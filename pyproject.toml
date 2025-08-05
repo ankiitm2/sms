@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "sms"
+version = "0.1.0"
+description = "Student Management System"
+authors = ["Your Name <your@email.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^5.0"
+gunicorn = "^20.1"
+psycopg2-binary = "^2.9"
+whitenoise = "^6.6"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
