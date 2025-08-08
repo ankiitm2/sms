@@ -149,7 +149,9 @@ def signup_view(request):
                 user.is_teacher = True
             
             user.save()
-            login(request, user)
+            from django.contrib.auth import login
+            backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user, backend=backend)
             messages.success(request, 'Signup successful!')
             return redirect('dashboard')
             
